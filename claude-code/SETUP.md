@@ -34,14 +34,17 @@ claude mcp add --scope user monet -- monet start   # or merge {command:"monet",a
 # 2. Worker subagents (user scope). name/description/model come from roster.json — the `description`
 #    is the trigger text Claude Code matches to delegate, so don't water it down.
 for f in explorer researcher analyst developer tester reviewer security reliability aria; do
-  out="$AG/$f.md"; [ -e "$out" ] && cp "$out" "$out.bak"          # back up any existing same-named subagent
-  desc=$(jq -r --arg n "$f" '.agents[]|select(.name==$n).description' "$WM/roster.json")
+  out="$AG/$f.md"
+  [ -e "$out" ] && [ ! -e "$out.bak" ] && cp "$out" "$out.bak"    # back up the user's ORIGINAL once; don't clobber it on reruns
+  desc=$(jq -c --arg n "$f" '.agents[]|select(.name==$n).description' "$WM/roster.json")  # JSON-quoted ⇒ YAML-safe (descriptions contain ':')
   model=$(jq -r --arg n "$f" '.agents[]|select(.name==$n).model' "$WM/roster.json")
   { printf -- '---\nname: %s\ndescription: %s\nmodel: %s\n---\n\n' "$f" "$desc" "$model"; cat "$WM/agents/$f.md"; } > "$out"
 done
 
-# 3. Stig as the lead, in GLOBAL memory (~/.claude/CLAUDE.md) — idempotent, backed up
-CM="$HOME/.claude/CLAUDE.md"; mkdir -p "$(dirname "$CM")"; touch "$CM"; cp "$CM" "$CM.bak"
+# 3. Stig as the lead, in GLOBAL memory (~/.claude/CLAUDE.md) — idempotent, original backed up once
+CM="$HOME/.claude/CLAUDE.md"; mkdir -p "$(dirname "$CM")"
+[ -e "$CM" ] && [ ! -e "$CM.bak" ] && cp "$CM" "$CM.bak"          # preserve the original, never overwrite it on reruns
+touch "$CM"
 sed -i.tmp '/<!-- BEGIN with-monet:stig -->/,/<!-- END with-monet:stig -->/d' "$CM" && rm -f "$CM.tmp"
 { printf '\n<!-- BEGIN with-monet:stig -->\n'; cat "$WM/agents/stig.md"; printf '\n<!-- END with-monet:stig -->\n'; } >> "$CM"
 ```
