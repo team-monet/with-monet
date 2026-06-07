@@ -22,27 +22,35 @@ Open the repo in Claude Code and paste:
 The agent wires the MCP server, installs Stig, offers to ingest your docs, then offers to start.
 
 ### B — Manual (fastest for your own testing)
-From the test repo root (set `WM` to wherever you cloned `with-monet`). Always install the **full team** — Stig is the lead, the workers are its actuators:
+Installs the **full team globally** (user scope — every project), non-destructively. Needs `jq` and the `claude` CLI. Set `WM` to your `with-monet` checkout:
 
 ```bash
-WM=/path/to/with-monet
+WM=/path/to/with-monet                 # your with-monet checkout
+AG="$HOME/.claude/agents"; mkdir -p "$AG"
 
-# 1. MCP server
-cp "$WM/claude-code/mcp.json" ./.mcp.json     # or merge into existing .mcp.json
+# 1. MCP server at USER scope — available in every project
+claude mcp add --scope user monet -- monet start   # or merge {command:"monet",args:["start"]} into ~/.claude.json
 
-# 2. Worker subagent team (always — orchestrating them is the whole point of Stig)
-mkdir -p .claude/agents
+# 2. Worker subagents (user scope). name/description/model come from roster.json — the `description`
+#    is the trigger text Claude Code matches to delegate, so don't water it down.
 for f in explorer researcher analyst developer tester reviewer security reliability aria; do
-  { printf '%s\n' '---' "name: $f" "description: $f actuator — Stig injects its context" '---' ''; cat "$WM/agents/$f.md"; } > ".claude/agents/$f.md"
+  out="$AG/$f.md"; [ -e "$out" ] && cp "$out" "$out.bak"          # back up any existing same-named subagent
+  desc=$(jq -r --arg n "$f" '.agents[]|select(.name==$n).description' "$WM/roster.json")
+  model=$(jq -r --arg n "$f" '.agents[]|select(.name==$n).model' "$WM/roster.json")
+  { printf -- '---\nname: %s\ndescription: %s\nmodel: %s\n---\n\n' "$f" "$desc" "$model"; cat "$WM/agents/$f.md"; } > "$out"
 done
 
-# 3. Stig as the lead (main agent delegates to the team above)
-cat "$WM/agents/stig.md" >> ./CLAUDE.md       # append; don't clobber existing notes
+# 3. Stig as the lead, in GLOBAL memory (~/.claude/CLAUDE.md) — idempotent, backed up
+CM="$HOME/.claude/CLAUDE.md"; mkdir -p "$(dirname "$CM")"; touch "$CM"; cp "$CM" "$CM.bak"
+sed -i.tmp '/<!-- BEGIN with-monet:stig -->/,/<!-- END with-monet:stig -->/d' "$CM" && rm -f "$CM.tmp"
+{ printf '\n<!-- BEGIN with-monet:stig -->\n'; cat "$WM/agents/stig.md"; printf '\n<!-- END with-monet:stig -->\n'; } >> "$CM"
 ```
+
+Storage is one global brain at `~/.monet`, isolated per project by circle. Per-repo instead? Write `./.mcp.json` (project scope) and set `MONET_STORAGE_DIR=<repo>/.monet`.
 
 ## 3. Run the session
 
-1. **Reload/restart Claude Code** in the repo so it picks up `.mcp.json` (monet connects; watch stderr for `semantic embeddings ready`).
+1. **Reload/restart Claude Code** so it picks up the user-scope `monet` server and `~/.claude/agents/` (monet connects; watch stderr for `semantic embeddings ready`).
 2. **Sanity check:** ask the agent to call `agent_context` — a fresh store returns empty workstreams/topConcepts.
 3. **Seed (optional):** ask it to ingest `CLAUDE.md` / `docs/` — `memory_store` (dedup is automatic).
 4. **Work normally on real code.** Watch the substrate guarantees in action:
@@ -55,6 +63,6 @@ cat "$WM/agents/stig.md" >> ./CLAUDE.md       # append; don't clobber existing n
 ## Inspect / reset
 
 ```bash
-MONET_STORAGE_DIR=<repo>/.monet monet status   # Concepts / Observations / Workstreams
-rm -rf <repo>/.monet                                 # wipe the store
+monet status            # global store (~/.monet): Concepts / Observations / Workstreams
+rm -rf ~/.monet         # wipe the global store   (per-repo: MONET_STORAGE_DIR=<repo>/.monet monet status)
 ```
