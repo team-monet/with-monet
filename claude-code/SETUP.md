@@ -5,10 +5,10 @@ Turnkey setup for running real sessions against the substrate.
 ## 1. Install the server (once per machine)
 
 ```bash
-npm i -g @team-monet/local      # provides the `monet-local` command
+npm i -g @team-monet/monet      # provides the `monet` command
 ```
 
-Needs `node` ≥ 22 and network access (the first run downloads the MiniLM model once). Zero-install alternative: use `npx -y @team-monet/local start` as the MCP command instead of `monet-local start`.
+Needs `node` ≥ 22 and network access (the first run downloads the MiniLM model once). Zero-install alternative: use `npx -y @team-monet/monet start` as the MCP command instead of `monet start`.
 
 ## 2. Onboard a test repo
 
@@ -42,7 +42,7 @@ cat "$WM/agents/stig.md" >> ./CLAUDE.md       # append; don't clobber existing n
 
 ## 3. Run the session
 
-1. **Reload/restart Claude Code** in the repo so it picks up `.mcp.json` (monet-local connects; watch stderr for `semantic embeddings ready`).
+1. **Reload/restart Claude Code** in the repo so it picks up `.mcp.json` (monet connects; watch stderr for `semantic embeddings ready`).
 2. **Sanity check:** ask the agent to call `agent_context` — a fresh store returns empty workstreams/topConcepts.
 3. **Seed (optional):** ask it to ingest `CLAUDE.md` / `docs/` — `memory_store` (dedup is automatic).
 4. **Work normally on real code.** Watch the substrate guarantees in action:
@@ -55,6 +55,6 @@ cat "$WM/agents/stig.md" >> ./CLAUDE.md       # append; don't clobber existing n
 ## Inspect / reset
 
 ```bash
-MONET_STORAGE_DIR=<repo>/.monet monet-local status   # Concepts / Observations / Workstreams
+MONET_STORAGE_DIR=<repo>/.monet monet status   # Concepts / Observations / Workstreams
 rm -rf <repo>/.monet                                 # wipe the store
 ```
