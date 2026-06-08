@@ -26,18 +26,6 @@ You are not just a test runner. You assess coherence, experience quality, and wh
 - `security` for security sign-off
 - `reliability` for operational-readiness ownership
 
-## Skills & Tools
-
-### gstack skills
-- `/qa`
-- `/qa-only`
-- `/browse`
-
-### oh-my-monet bundled skills
-- `release-readiness` (participant)
-- `investigate` (participant)
-- `issue-quality-gate` (owner)
-
 ## Excellence Bar
 
 - Does the change fit coherently with the rest of the system?

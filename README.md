@@ -2,7 +2,7 @@
 
 **An agent-agnostic harness that pairs a state-centric coding lead (`Stig`) and a focused worker team with [Monet](https://github.com/team-monet/monet)'s memory substrate.**
 
-The substrate — the `@team-monet/core` engine (in [`team-monet/monet-core`](https://github.com/team-monet/monet-core)) wrapped by the `monet` MCP server + CLI (in [`team-monet/monet`](https://github.com/team-monet/monet), on npm as `@team-monet/monet`) — maintains a coherent, evolving state model — dedup, contradiction detection, session-state survival, query-independent prewarm — so the agent doesn't have to. `with-monet` is the *lightweight* harness that points whatever coding agent you run (Claude Code today; Cursor, Continue, … next) at that substrate and gives it a team that knows how to use it.
+The substrate — the `@team-monet/core` engine (in [`team-monet/monet-core`](https://github.com/team-monet/monet-core)) wrapped by the `monet` MCP server + CLI (in [`team-monet/monet`](https://github.com/team-monet/monet), on npm as `@team-monet/monet`) — maintains a coherent, evolving state model — dedup, contradiction detection, session-state survival, query-independent prewarm — so the agent doesn't have to. `with-monet` is the *lightweight* harness that points whatever coding agent you run (Claude Code today; agent-agnostic by design) at that substrate and gives it a team that knows how to use it.
 
 ## Where this sits
 
@@ -11,16 +11,13 @@ The substrate — the `@team-monet/core` engine (in [`team-monet/monet-core`](ht
 | `team-monet/monet` | **Monet** — the local-first client: the `monet` MCP server + CLI (npm `@team-monet/monet`). AGPL-3.0. |
 | `team-monet/monet-core` | The **engine** — the state-centric memory substrate (npm `@team-monet/core`). AGPL-3.0. |
 | **`with-monet` (this repo)** | The **lightweight, agent-agnostic harness**: portable agent prompts + bootstrap that wire a host to `monet`. |
-| `team-monet/oh-my-monet` | The full **OpenCode distribution**: same agent lineage plus an autonomous daemon, a GitHub-MCP execution pipeline, and model-profile benchmarking. The heavyweight playground. |
 
-The agent prompts here are sourced from `oh-my-monet`. **`Stig` is rewritten to the new state-centric substrate** — the old `EXTRACT → REVIEW → COMMIT → REBUILD` memory discipline is now structural in Monet (ADR 0001 §7), so Stig's prompt shrank. The worker prompts are carried over and being generalized away from OpenCode specifics.
+**`Stig` is built for the state-centric substrate** — the memory discipline older agents hand-rolled (`EXTRACT → REVIEW → COMMIT → REBUILD`) is now structural in Monet (ADR 0001 §7), so Stig's prompt stays lean. The workers are focused, single-responsibility actuators that Stig delegates to.
 
 ## The team
 
 - **`stig`** — state-centric lead. Restores via `agent_context` (prewarm), delegates with pre-assembled context, and is the only agent that touches Monet.
 - Workers Stig delegates to: `explorer`, `researcher`, `analyst`, `developer`, `tester`, `reviewer`, `security`, `reliability`, `aria`.
-
-(The autonomous `nova`/daemon lead, `housekeeper`, and `marketer` stay in `oh-my-monet` — out of scope for this interactive harness.)
 
 ## Install — agent-first (paste one line into your agent)
 
@@ -39,5 +36,4 @@ The agent then follows the [bootstrap playbook](bootstrap/install.md): **orient 
 - [x] Substrate published to npm (`@team-monet/monet`) — `npm i -g @team-monet/monet`.
 - [ ] Push `with-monet` so the one-line entry resolves (raw `install.md` URL).
 - [ ] Broaden the playbook's per-host coverage beyond Claude Code (Cursor, Continue, Aider).
-- [ ] Memory-ingest recipes (old Monet export, `CLAUDE.md`/`docs`).
-- [ ] Finish generalizing the worker prompts off OpenCode.
+- [ ] Broaden memory consolidation — capture from any source (old Monet, `CLAUDE.md`/`AGENTS.md`/rules, docs) and retire the source ([`bootstrap/consolidate-memory.md`](bootstrap/consolidate-memory.md)).
