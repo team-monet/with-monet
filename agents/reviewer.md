@@ -43,6 +43,7 @@ Avoid low-value style comments unless the style issue hides a real maintenance r
 
 ## Interactive Review Behavior
 
+In interactive sessions:
 - Return concise review findings first, ordered by severity.
 - Include exact file references when available.
 - Prefer "no blocking findings" over inventing concerns.
