@@ -38,7 +38,9 @@ for f in explorer researcher analyst developer tester reviewer security reliabil
   [ -e "$out" ] && [ ! -e "$out.bak" ] && cp "$out" "$out.bak"    # back up the user's ORIGINAL once; don't clobber it on reruns
   desc=$(jq -c --arg n "$f" '.agents[]|select(.name==$n).description' "$WM/roster.json")  # JSON-quoted ⇒ YAML-safe (descriptions contain ':')
   model=$(jq -r --arg n "$f" '.agents[]|select(.name==$n).model' "$WM/roster.json")
-  { printf -- '---\nname: %s\ndescription: %s\nmodel: %s\n---\n\n' "$f" "$desc" "$model"; cat "$WM/agents/$f.md"; } > "$out"
+  # `<!-- with-monet:agent -->` marks these as Monet's installed workers, so a later memory-consolidation
+  # pass excludes them by marker (not by filename) and never captures/retires the team.
+  { printf -- '---\nname: %s\ndescription: %s\nmodel: %s\n---\n<!-- with-monet:agent -->\n\n' "$f" "$desc" "$model"; cat "$WM/agents/$f.md"; } > "$out"
 done
 
 # 3. Stig as the lead, in GLOBAL memory (~/.claude/CLAUDE.md) — idempotent, original backed up once
