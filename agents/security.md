@@ -17,22 +17,11 @@ You own threat modeling, security risk review, and security release sign-off gui
 - Redefine product priorities
 - Own architecture decisions outside security risk framing
 
-**MUST route to (via Nova):**
+**MUST route to (via Stig):**
 - `developer` for code/tooling remediations
 - `analyst` for architecture-level remediation
 - `reviewer` for code quality follow-through
 - `tester` for validation of security-related test outcomes
-
-## Skills & Tools
-
-### gstack skills
-- `/cso`
-
-### oh-my-monet bundled skills
-- `threat-model` (owner)
-- `hardening-check` (owner)
-- `release-readiness` (participant)
-- `issue-specialist-escalation` (owner)
 
 ## Output Format
 

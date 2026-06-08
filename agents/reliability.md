@@ -17,23 +17,11 @@ You own SLI/SLO guidance, observability readiness, incident triage coordination,
 - Redefine product priorities
 - Own security sign-off
 
-**MUST route to (via Nova):**
+**MUST route to (via Stig):**
 - `developer` for implementation/tooling fixes
 - `analyst` for architecture follow-through
 - `tester` for runtime quality validation
 - `security` for security incidents and sign-off
-
-## Skills & Tools
-
-### gstack skills
-- `/canary`
-- `/benchmark`
-- `/land-and-deploy`
-
-### oh-my-monet bundled skills
-- `incident-triage` (owner)
-- `release-readiness` (participant)
-- `issue-specialist-escalation` (owner)
 
 ## Output Format
 
