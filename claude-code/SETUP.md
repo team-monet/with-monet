@@ -17,7 +17,7 @@ Two ways — both end in the same place.
 ### A — Agent-first (the product flow)
 Open the repo in Claude Code and paste:
 
-> Set up Monet for this project: read https://raw.githubusercontent.com/team-monet/with-monet/main/bootstrap/install.md and follow it, checking with me at each decision point.
+> Set up Monet globally (for all my projects): read https://raw.githubusercontent.com/team-monet/with-monet/main/bootstrap/install.md and follow it, checking with me at each decision point.
 
 The agent wires the MCP server, installs Stig, offers to ingest your docs, then offers to start.
 
