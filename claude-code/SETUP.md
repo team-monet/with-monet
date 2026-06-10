@@ -33,7 +33,7 @@ claude mcp add --scope user monet -- monet start   # or merge {command:"monet",a
 
 # 2. Worker subagents (user scope). name/description/model come from roster.json — the `description`
 #    is the trigger text Claude Code matches to delegate, so don't water it down.
-for f in explorer researcher analyst developer tester reviewer security reliability aria; do
+for f in explorer researcher analyst developer tester reviewer auditor security reliability aria; do
   out="$AG/$f.md"
   [ -e "$out" ] && [ ! -e "$out.bak" ] && cp "$out" "$out.bak"    # back up the user's ORIGINAL once; don't clobber it on reruns
   desc=$(jq -c --arg n "$f" '.agents[]|select(.name==$n).description' "$WM/roster.json")  # JSON-quoted ⇒ YAML-safe (descriptions contain ':')

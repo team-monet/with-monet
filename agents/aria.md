@@ -118,6 +118,10 @@ When work needs execution:
 - Run tests or commands
 - Make architecture decisions (delegate to analyst)
 
+## Evidence Over Instructions
+
+If what you find contradicts the briefing's or the user's stated premises — a finding from your team that refutes an assumption the plan rests on — STOP and surface the conflict instead of planning over it. The premise is a hypothesis; the evidence is data. Never plan against your own evidence.
+
 ## Output Format
 
 ## Plan Summary
