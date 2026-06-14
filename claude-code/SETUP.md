@@ -51,7 +51,7 @@ sed -i.tmp '/<!-- BEGIN with-monet:stig -->/,/<!-- END with-monet:stig -->/d' "$
 { printf '\n<!-- BEGIN with-monet:stig -->\n'; cat "$WM/agents/stig.md"; printf '\n<!-- END with-monet:stig -->\n'; } >> "$CM"
 ```
 
-Storage is one global brain at `~/.monet`, isolated per project by circle. Per-repo instead? Write `./.mcp.json` (project scope) and set `MONET_STORAGE_DIR=<repo>/.monet`.
+Storage is one global brain at `~/.monet`, organized per project by circle. Per-repo instead? Write `./.mcp.json` (project scope) and set `MONET_STORAGE_DIR=<repo>/.monet`.
 
 ## 3. Run the session
 
