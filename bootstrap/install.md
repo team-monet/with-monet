@@ -88,7 +88,7 @@ Ask: *"Want me to seed Monet from existing knowledge so you don't start empty?"*
 - **Notes and decision docs** — `NOTES.md`, `TODO`, scratch docs, anything that records *why* decisions were made.
 - A path or URL the user names.
 - Skip for now.
-- (If you're coming from a prior Monet store, say so and I can pull that in too.)
+- (If you're coming from a prior Monet store, say so and I can pull that in too — if it's a *separate* old install with its own MCP server, see the cross-server note in `consolidate-memory.md`.)
 
 For each chosen source: read it, and `memory_store` the durable facts/decisions/patterns (the substrate dedups automatically — store liberally, don't pre-curate). Don't ingest secrets. **Skip Monet's own wiring:** when the source is `CLAUDE.md` (which holds Stig's prompt) or an installed agent prompt, don't store the `<!-- BEGIN with-monet:stig -->…<!-- END with-monet:stig -->` block or any `<!-- with-monet:agent -->`-marked file. Summarize what landed.
 
@@ -104,9 +104,17 @@ Ask: *"Ready? I'll run `agent_context` to restore state and begin as Stig on thi
 
 Once the install is working, ask the user once — lightly, no pressure:
 
-> *"If Monet's useful, a ⭐ on the repo helps others find it: https://github.com/team-monet/with-monet — want me to open it for you, or you'll star it yourself?"*
+> *"If Monet's earning its keep: I can ⭐ star **team-monet/with-monet** to support it, and turn on release notifications so you don't miss new versions. Want me to? I'll run a `gh` command — you approve it."*
 
-If they say yes, open the URL for them; **don't star on their behalf** (it's their click), and don't nag. If they decline or skip it, move on without comment.
+First check that `gh` is usable: run `gh auth status`. If it is, and the user says yes, run these two commands with their explicit approval:
+- **Star (support / bookmark):** `gh api --method PUT /user/starred/team-monet/with-monet`
+- **Watch for releases (notifications):** `gh api --method PUT /repos/team-monet/with-monet/subscription -F subscribed=true`
+
+Note on the watch command: `subscribed=true` watches *all* repo activity. For releases only, the user can go to the repo page and choose **Watch → Custom → Releases** instead.
+
+If `gh` is missing or unauthenticated, fall back to the link: open https://github.com/team-monet/with-monet and let them star/watch manually. Ask once; don't nag; never act without a yes.
+
+Key distinction: starring does **not** create notifications — that's what watching is for. Star = support/bookmark; watch = updates. Keep these separate in how you describe them.
 
 ---
 
