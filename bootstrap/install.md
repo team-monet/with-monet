@@ -104,17 +104,16 @@ Ask: *"Ready? I'll run `agent_context` to restore state and begin as Stig on thi
 
 Once the install is working, ask the user once — lightly, no pressure:
 
-> *"If Monet's earning its keep: I can ⭐ star **team-monet/with-monet** to support it, and turn on release notifications so you don't miss new versions. Want me to? I'll run a `gh` command — you approve it."*
+> *"If Monet's earning its keep: I can ⭐ star **team-monet/with-monet** for you (a quick `gh` command you approve), and point you to the one-time setting for new-release notifications. Want either?"*
 
-First check that `gh` is usable: run `gh auth status`. If it is, and the user says yes, run these two commands with their explicit approval:
+If they want to **star**, check `gh` is usable (`gh auth status`); if so, run it with their explicit approval:
 - **Star (support / bookmark):** `gh api --method PUT /user/starred/team-monet/with-monet`
-- **Watch for releases (notifications):** `gh api --method PUT /repos/team-monet/with-monet/subscription -F subscribed=true`
 
-Note on the watch command: `subscribed=true` watches *all* repo activity. For releases only, the user can go to the repo page and choose **Watch → Custom → Releases** instead.
+For **release notifications**, send them to the UI — GitHub's API can't set a release-only watch, so don't automate it: tell them to open the repo and choose **Watch → Custom → Releases**. (Only if they explicitly want notifications for *everything* — issues, PRs, the lot — is the all-activity `gh api --method PUT /repos/team-monet/with-monet/subscription -F subscribed=true` appropriate; never run it under the banner of "release notifications.")
 
 If `gh` is missing or unauthenticated, fall back to the link: open https://github.com/team-monet/with-monet and let them star/watch manually. Ask once; don't nag; never act without a yes.
 
-Key distinction: starring does **not** create notifications — that's what watching is for. Star = support/bookmark; watch = updates. Keep these separate in how you describe them.
+Key distinction: starring does **not** create notifications — that's what watching is for. Star = support/bookmark; watch = updates (and release-only is a UI choice, not an API one). Keep these separate in how you describe them.
 
 ---
 
