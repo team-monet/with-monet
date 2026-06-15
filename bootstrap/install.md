@@ -16,9 +16,9 @@ Work through the phases in order. After each, tell the user what happened in one
 
 Already set up and just want the latest team (Stig + workers)? You don't need to re-run onboarding — re-run **Phase 4 only** against the latest sources:
 1. Re-read `roster.json`, `agents/*.md`, and `agents/stig.md` from the raw-URL base (or your local `with-monet` checkout).
-2. Re-apply Phase 4's write step — rewrite the Stig block (between the `<!-- BEGIN with-monet:stig -->` / `<!-- END with-monet:stig -->` markers) and each `~/.claude/agents/<name>.md`. **Reconcile, don't clobber:** preserve your local edits, apply the new changes, guard the invariants, and keep `.bak` (see Phase 4).
+2. Re-apply Phase 4's write step **to the same scope the team was installed in** — detect that from where the existing markers live: user scope (`~/.claude/CLAUDE.md` + `~/.claude/agents/<name>.md`) or per-repo (`./CLAUDE.md` + `./.claude/agents/<name>.md`). Rewrite the Stig block (between the `<!-- BEGIN with-monet:stig -->` / `<!-- END with-monet:stig -->` markers) and each agent file **in that location** — never silently switch a per-repo install to global. **Reconcile, don't clobber:** preserve your local edits, apply the new changes, guard the invariants, and keep `.bak` (see Phase 4).
 
-Skip Phases 1–3 (substrate + MCP already configured) and 5–7. Phase 4 is idempotent, so this is safe to repeat.
+Skip Phases 1–3 (substrate + MCP already configured) and 5–7 — except: if your host only loads agents/MCP at startup (Claude Code does), **reload or restart it afterward** so the updated Stig + workers take effect; a running session keeps the old prompts until you do. Phase 4 is idempotent, so this is safe to repeat.
 
 ---
 
@@ -79,7 +79,7 @@ Merge into the host's **user-level** MCP config **without clobbering existing se
     **Write each file transparently, one at a time.** Use your host's file-write tool so the user sees every file's content as it's written; never generate a script that batch-writes the agents directory. Host permission systems treat opaque scripted writes to agent config as suspect and will (rightly) block them — per-file writes the user can read are both the polite and the working path.
     **Don't clobber.** If `~/.claude/agents/<name>.md` already exists, back it up (`<name>.md.bak`) and tell the user before overwriting — generic names (`developer`, `reviewer`, …) can collide with the user's own subagents.
     **Reconcile, don't clobber — when a prior install exists with local edits.** Don't blindly overwrite a Stig block or agent file the user has changed. Compare the installed version against the new canonical and merge: keep the user's customizations (extra rules, model choices, tone), apply the new changes. Ensure these invariants survive — and warn the user if one of their edits conflicts with them:
-    - the `<!-- with-monet:stig -->` / `<!-- with-monet:agent -->` markers (lose them and a later update can't find the block),
+    - the Stig block's `<!-- BEGIN with-monet:stig -->` / `<!-- END with-monet:stig -->` markers and each worker's `<!-- with-monet:agent -->` marker (lose them and a later update can't find the block),
     - the **Git & PR guardrail**,
     - "subagents can't spawn subagents — you are the only orchestrator",
     - the Monet lifecycle (`agent_context` at start; `memory_store` / `memory_checkpoint`),
