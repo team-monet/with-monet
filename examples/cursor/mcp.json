@@ -1,0 +1,9 @@
+{
+  "_comment": "Cursor example — merge this entry into ~/.cursor/mcp.json to register Monet at user scope.",
+  "mcpServers": {
+    "monet": {
+      "command": "monet",
+      "args": ["start"]
+    }
+  }
+}

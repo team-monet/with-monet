@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "type": "module",
   "bin": { "with-monet": "./bootstrap/cli.mjs" },
-  "files": ["agents", "bootstrap", "mcp", "roster.json", "README.md"],
+  "files": ["agents", "bootstrap", "examples", "mcp", "roster.json", "README.md"],
   "scripts": {
     "bootstrap": "node bootstrap/cli.mjs"
   }
