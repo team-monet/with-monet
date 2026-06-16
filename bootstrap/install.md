@@ -16,7 +16,7 @@ Work through the phases in order. After each, tell the user what happened in one
 
 Already set up and just want the latest team (Stig + workers)? You don't need to re-run onboarding — re-run **Phase 4 only** against the latest sources:
 1. Re-read `roster.json`, `agents/*.md`, and `agents/stig.md` from the raw-URL base (or your local `with-monet` checkout).
-2. Re-apply Phase 4's write step **to the same scope the team was installed in** — detect that from where the existing `<!-- with-monet:stig -->` / `<!-- with-monet:agent -->` markers already live in your host's lead-persona target and worker locations (Phase 1 maps these per host). (Claude Code example: user scope `~/.claude/CLAUDE.md` + `~/.claude/agents/<name>.md`; per-repo `./CLAUDE.md` + `./.claude/agents/<name>.md`.) Rewrite the Stig block (between the `<!-- BEGIN with-monet:stig -->` / `<!-- END with-monet:stig -->` markers) and each agent file **in that location** — never silently switch a per-repo install to global. **Reconcile, don't clobber:** preserve your local edits, apply the new changes, guard the invariants, and keep `.bak` (see Phase 4).
+2. Re-apply Phase 4's write step **to the same scope the team was installed in** — detect that from where the existing `<!-- BEGIN with-monet:stig -->` / `<!-- with-monet:agent -->` markers already live in your host's lead-persona target and worker locations (Phase 1 maps these per host). (Claude Code example: user scope `~/.claude/CLAUDE.md` + `~/.claude/agents/<name>.md`; per-repo `./CLAUDE.md` + `./.claude/agents/<name>.md`.) Rewrite the Stig block (between the `<!-- BEGIN with-monet:stig -->` / `<!-- END with-monet:stig -->` markers) and each agent file **in that location** — never silently switch a per-repo install to global. **Reconcile, don't clobber:** preserve your local edits, apply the new changes, guard the invariants, and keep `.bak` (see Phase 4).
 
 Skip Phases 1–3 (substrate + MCP already configured) and 5–7 — except: if your host only loads agents/MCP at startup (Claude Code, Cursor, and most IDE-based hosts do — see the per-host reload note in Phase 1), **reload or restart it afterward** so the updated Stig + workers take effect; a running session keeps the old prompts until you do. Phase 4 is idempotent, so this is safe to repeat.
 
@@ -28,8 +28,8 @@ You install Monet **globally for this user** (every project), not just the curre
 
 1. Identify your host (Claude Code, Cursor, Continue, Aider, …) and note where it reads, **at user scope**, (a) **MCP server config** and (b) **agent/subagent prompts**.
    - Claude Code → MCP: user scope via `claude mcp add --scope user …` (or `~/.claude.json`); subagents: `~/.claude/agents/<name>.md`; lead persona: `~/.claude/CLAUDE.md` (global memory). *(Project scope, if requested: `./.mcp.json`, `./.claude/agents/<name>.md`, `./CLAUDE.md`.)* Reload: Claude Code picks up user-scope servers and `~/.claude/agents/` on startup — reload or restart the session after any install or update.
-   - Cursor → MCP: `~/.cursor/mcp.json`; agent rules: `.cursor/rules/*.mdc` (use `alwaysApply: true` for the lead persona). Reload: Cursor loads MCP servers and rules on startup — restart after changes.
-   - Aider → **no native MCP support.** Monet cannot be registered as an MCP server; the harness degrades to prompt-only — lead persona via `AGENTS.md` or `CONVENTIONS.md`, no subagent primitive (workers handed off manually by the lead in-conversation). Reload: not applicable (Aider reads its config files per invocation).
+   - Cursor → MCP: `~/.cursor/mcp.json`; agent rules: `.cursor/rules/*.mdc` — **repo-scoped, not global** (Cursor's user-scope "User Rules" live in Settings → Rules, a UI you can't write as a file). For an all-projects install, ask the user to paste the lead persona into Settings → Rules; the file-based `.cursor/rules` path is per-repo only. (`.cursor/rules` are always-on instructions — fine for the lead persona, but **not** delegatable workers; see Tier B.) Reload: Cursor loads MCP + rules on startup — restart after changes.
+   - Aider (or any host with **no MCP support**) → Monet can't register as an MCP server, and Stig + the workers depend on Monet's MCP tools (`agent_context`, `memory_store`, `memory_checkpoint`) — so the harness **can't run as designed** here. **Stop**: tell the user Monet needs an MCP-capable host, and don't install a lead/worker prompt that would call tools the host can't provide. (Monet's whole value is the MCP memory substrate.)
    - OpenCode / Cline / Windsurf → MCP + subagents supported; config locations vary by host and version — confirm the exact paths in the host's docs before writing. Reload: consult host docs for whether a restart is needed after config changes.
    - Unknown host → ask the user where its user-level MCP config and custom-agent-prompt location live, and whether a restart is needed after changes.
 2. Confirm: *"You're on **<host>**. I'll install Monet **globally** so it works across all your projects — or scoped to just this repo if you'd rather. Anything special about your setup?"*
@@ -56,7 +56,7 @@ Register `monet` in your host's MCP config at **user scope** so it's available i
 Host examples:
 - **Claude Code:** `claude mcp add --scope user monet -- monet start`, or merge the entry above into `~/.claude.json` under `mcpServers`. *(Per-repo install instead: write `./.mcp.json`.)*
 - **Cursor:** merge the entry into `~/.cursor/mcp.json` under `mcpServers`. *(Per-repo: `.cursor/mcp.json` in the repo root, if Cursor supports it — confirm in Cursor's docs.)*
-- **Aider:** MCP is not supported — skip this phase. The harness runs prompt-only (see Phase 1 Aider note); the Monet memory loop is available only through prompt discipline, not via MCP tool calls.
+- **Aider / any no-MCP host:** MCP isn't supported, so Monet is unavailable — **stop here** (see the Phase 1 no-MCP note) and don't continue to Phase 4. Installing Stig without Monet hands the lead instructions to call tools that don't exist.
 - **Other host:** merge the entry into your host's user-level MCP config file. Consult your host's docs for the exact path and format.
 
 **Storage — one global brain, organized per project.** By default the store lives at `~/.monet` (shared across all the user's projects) and Monet organizes each project into its own *circle* automatically — no config required. If the user prefers a hard filesystem split per repo, offer it: set `env.MONET_STORAGE_DIR` to a per-project path (e.g. `<repo>/.monet`) in the MCP config block you write for them. Default to the shared global store unless they ask.
@@ -73,8 +73,8 @@ Write the body of `agents/stig.md` (wrapped in the `<!-- BEGIN with-monet:stig -
 
 Host examples for lead-persona target:
 - Claude Code → `~/.claude/CLAUDE.md` (global); or `./CLAUDE.md` (per-repo scope).
-- Cursor → `.cursor/rules/stig.mdc` with `alwaysApply: true` in the frontmatter.
-- Aider → `AGENTS.md` (or `CONVENTIONS.md`) at user or repo scope.
+- Cursor → `.cursor/rules/stig.mdc` with `alwaysApply: true` (repo-scoped; for a global install use Settings → Rules — see Phase 1).
+- No-MCP hosts (e.g. Aider) → not reached: they stop at Phase 1/3 (Monet needs MCP).
 - Unknown host → ask the user where its lead-persona / always-active system prompt lives.
 
 Wrap the body in idempotent markers so re-running doesn't duplicate it. If the host's lead-persona file carries required frontmatter (e.g. a Cursor `.mdc` rule's `alwaysApply: true`), the markers and body go **below** that frontmatter — a leading HTML comment would break the rule's activation metadata:
@@ -85,7 +85,7 @@ Wrap the body in idempotent markers so re-running doesn't duplicate it. If the h
 ```
 If the markers already exist, replace the block in place; never append a second copy, and never clobber the user's other content in that file (back it up first).
 
-**Tier B — Workers (named sub-contexts, where the host supports them).** For hosts with a named subagent / sub-context primitive, write one worker prompt per worker into your host's agent-prompt location — `explorer, researcher, analyst, developer, tester, reviewer, auditor, security, reliability, aria`. For hosts without a subagent primitive (e.g. Aider), skip this tier: the lead hands off to workers manually in-conversation.
+**Tier B — Workers (named sub-contexts, where the host supports them).** Only install workers where the host has a **real named-subagent primitive** that gives each worker a *fresh, isolated context* the lead can delegate to. Write one worker prompt per worker into your host's agent-prompt location — `explorer, researcher, analyst, developer, tester, reviewer, auditor, security, reliability, aria`. Hosts whose "agents" are really always-on instruction *rules* (e.g. Cursor's `.cursor/rules`) do **not** qualify — rules bleed every worker persona into the main context, breaking the "workers execute separately, never touch Monet" invariant. For any host without a true subagent primitive, **skip this tier**: the lead hands off to workers manually in-conversation.
 
 Each worker file is any required host frontmatter + the body from `agents/<name>.md`. Pull the frontmatter fields from that worker's entry in `roster.json`:
 - `name` → frontmatter `name`
@@ -107,8 +107,8 @@ model: haiku
 
 Host examples for worker location:
 - Claude Code → `~/.claude/agents/<name>.md` (user scope); or `./.claude/agents/<name>.md` (per-repo).
-- Cursor → `.cursor/rules/<name>.mdc` (user or repo scope per Cursor's rules).
-- Aider / hosts without subagent primitive → no worker files; the lead hands off manually.
+- Cursor → **no true subagent primitive** — `.cursor/rules/<name>.mdc` are always-on instructions, not isolated sub-contexts, so don't install workers as rules. Unless your Cursor version exposes a real named-subagent feature, skip Tier B and have the lead hand off manually.
+- Hosts without a true subagent primitive → no worker files; the lead hands off manually. (No-MCP hosts like Aider don't reach this phase — they stop at Phase 1/3.)
 - Unknown host → ask the user where its named agent-prompt / sub-context location lives.
 
 **Write each file transparently, one at a time.** Use your host's file-write tool so the user sees every file's content as it's written; never generate a script that batch-writes the agents directory. Host permission systems treat opaque scripted writes to agent config as suspect and will (rightly) block them — per-file writes the user can read are both the polite and the working path.
