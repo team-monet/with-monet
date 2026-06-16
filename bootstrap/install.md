@@ -28,7 +28,7 @@ You install Monet **globally for this user** (every project), not just the curre
 
 1. **Identify your host and its install surfaces.** You're the agent running inside it, so you know — or its docs do — where it keeps, at user scope, (a) its **MCP server config**, (b) its **always-on lead-persona / system prompt**, and (c) its **named-subagent definitions** (if it has them). Note two capabilities that gate the rest of the install:
    - **MCP support — required.** Monet is an MCP server and Stig's whole loop is MCP tools (`agent_context`, `memory_store`, `memory_checkpoint`). If the host can't run MCP servers, **stop** and tell the user Monet needs an MCP-capable host.
-   - **Real isolated subagents — needed for the worker team.** Each worker must run in its *own fresh context* the lead can delegate into — not an always-on "rule" that bleeds into the main context. If the host has this, you'll install the full team (Phase 4 Tier B); if not, you'll install Stig solo. **Feature-detect it from the host's docs — don't infer it from the host's name** (host capabilities change fast).
+   - **Real isolated subagents — needed for the worker team.** Each worker must run in its *own fresh context* the lead can delegate into — not an always-on "rule" that bleeds into the main context. If the host has this, you'll install the full team (Phase 4 Tier B); if it doesn't, the harness can't run here and you'll **stop** — Stig is an orchestrator, so with no workers there's nothing to orchestrate. **Feature-detect it from the host's docs — don't infer it from the host's name** (host capabilities change fast).
 
    Also note whether the host loads MCP/agents only at startup (you'll tell the user to reload afterward). Anything unclear — check the host's docs or ask the user; don't guess.
 2. Confirm: *"You're on **<host>**. I'll install Monet **globally** so it works across all your projects — or scoped to just this repo if you'd rather. Anything special about your setup?"*
@@ -60,7 +60,7 @@ Merge into the host's **user-level** MCP config **without clobbering existing se
 
 ## Phase 4 — Install the agent team (user scope)
 
-**Install the full team wherever the host supports it.** Stig is a context engine whose purpose is to orchestrate the workers, so don't drop the workers by *choice* on a host that can run them. Stig is the **lead** (the one the user talks to, the only one that delegates, the only one that touches Monet); the workers are its **subagent actuators**. (On a host that *can't* provide isolated subagents, solo Stig is the honest fallback — see Tier B.)
+**Install the full team wherever the host supports it.** Stig is a context engine whose purpose is to orchestrate the workers, so don't drop the workers by *choice* on a host that can run them. Stig is the **lead** (the one the user talks to, the only one that delegates, the only one that touches Monet); the workers are its **subagent actuators**. (A host that *can't* provide isolated subagents can't run the orchestration team at all — see Tier B.)
 
 **Tier A — Lead persona (ask first, highest-impact write).** This is the install's highest-impact write, so it gets its own decision point. Ask: *"Install Stig as the lead persona in your [host's lead-persona location]? This changes how every session on this machine starts."* A general "go ahead with the install" doesn't cover this — wait for an explicit yes (your host's permission system will likely insist on the same). On a no, offer to scope Stig to the current repo's equivalent per-repo location instead (the per-repo option from Phase 1).
 
@@ -96,7 +96,7 @@ model: haiku
 <body of agents/explorer.md>
 ```
 
-**If the host has no real isolated subagents: don't fake it.** Installing workers as always-on rules, or telling the lead to role-play them in its own context, breaks the isolation invariant (and hands the lead Monet access while pretending to be a worker). Instead install **Stig solo** — the lead persona + Monet, no worker team — and tell the user delegation isn't available on this host; Stig still runs as a useful memory-augmented single agent. (Or stop, if a lead without its team isn't worth it to them.) Don't claim "manual in-conversation handoff" as an equivalent — it isn't.
+**If the host has no real isolated subagents: stop — don't install the team here.** Stig is fundamentally an orchestrator: its whole job is to inject context into delegatable workers, so without real isolated subagents there's no coherent install — workers-as-rules or in-conversation role-play breaks the isolation invariant, and the Stig prompt itself would still tell the lead to delegate to workers that don't exist. Tell the user this host can't run the Stig + worker harness (it needs a real subagent primitive alongside MCP); they can still use the **Monet MCP server standalone** for memory. Both requirements — MCP *and* isolated subagents — gate the install; missing either means stop, same as the no-MCP case in Phase 1.
 
 **Write each file transparently, one at a time.** Use your host's file-write tool so the user sees every file's content as it's written; never generate a script that batch-writes the agents directory. Host permission systems treat opaque scripted writes to agent config as suspect and will (rightly) block them — per-file writes the user can read are both the polite and the working path.
 
@@ -111,7 +111,7 @@ model: haiku
 
 Show the merged result, write only on the user's approval, and keep the `.bak`. A coding agent can do this reconciliation by judgment — no version-pinning or 3-way merge tooling required; `.bak` plus approve-before-write keep it safe.
 
-The user may request a trimmed worker set, but the full team is the default on a host that supports it — don't reduce to Stig-only by *choice* (solo Stig is only the fallback for hosts without isolated subagents).
+The user may request a trimmed worker set, but the full team is the default — don't reduce to Stig-only by *choice*. (A host without real isolated subagents can't run the team at all — the install stops there, per Tier B.)
 
 ## Phase 5 — Offer the memory-ingest pipeline
 
