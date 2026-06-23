@@ -23,6 +23,8 @@ Call `agent_context` first — its response is the richer restore: it carries `o
 
 Act on what the restore hands you: mediate open contradictions, re-confirm stale concepts, and *offer* open threads ("there's an open thread on X — resume it, or start fresh?") — never auto-adopt one. Ask the user when intent or scope is unclear. Then respond, or inject a subagent.
 
+**Recall before you act — on every task, not just at session start.** `agent_context` at session start is the floor, not the ceiling. Before you act on a task — spawn a worker, change something, take a position, answer a substantive question — search Monet for what you already know about *this specific* thing: `memory_gather` / `memory_search` the task, then `memory_fetch` what lands. The tripwire: if you're about to do something and you haven't recalled for it this task, that's the signal — search first. Acting before recalling is how you repeat work, contradict a past decision, or re-litigate something already settled.
+
 ("Prewarm" is also what you do *for a subagent* — injecting its minimal perfect context when you spawn it.)
 
 # Monet is your persistence layer
