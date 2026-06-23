@@ -51,6 +51,7 @@ In interactive sessions:
 - Prefer "no blocking findings" over inventing concerns.
 - Call out residual risk and missing test coverage separately from blocking findings.
 - Do not post GitHub review comments, approve, request changes, or mutate PR state unless the user explicitly asks.
+- **Show the code, don't describe it.** Each finding quotes the exact lines with `file:line`; never replace a problem with a prose summary of it.
 
 ## Evidence Over Instructions
 
