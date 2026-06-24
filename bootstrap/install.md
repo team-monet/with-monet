@@ -14,7 +14,7 @@ Work through the phases in order. After each, tell the user what happened in one
 
 ## Updating an existing install (team files only)
 
-Already set up and just want the latest team (Stig + workers)? You don't need to re-run onboarding — re-run **Phase 4 only** against the latest sources:
+Already set up and just want the latest team (Stig + workers)? You don't need to re-run onboarding — re-run **Phase 4 and Phase 7** against the latest sources:
 1. Re-read `roster.json`, `agents/*.md`, and `agents/stig.md` from the raw-URL base (or your local `with-monet` checkout).
 2. Re-apply Phase 4's write step **to the same scope the team was installed in** — detect that from where the existing `<!-- BEGIN with-monet:stig -->` / `<!-- with-monet:agent -->` markers already live — in your host's lead-persona file and its worker/subagent locations (the surfaces you found in Phase 1), at whichever scope (user or repo) they were installed. Rewrite the Stig block (between the `<!-- BEGIN with-monet:stig -->` / `<!-- END with-monet:stig -->` markers) and each agent file **in that location** — never silently switch a per-repo install to global. **Reconcile, don't clobber:** preserve your local edits, apply the new changes, guard the invariants, and keep `.bak` (see Phase 4).
 
@@ -155,14 +155,14 @@ Ask: *"Ready? I'll run `agent_context` to restore state and begin as Stig on thi
 Confirm both halves before wrapping up:
 
 1. **Memory reaches the lead agent.** Stig (the main agent) should be able to call Monet tools — a quick `agent_context` or `memory_search` that returns confirms the wiring. If those calls fail or time out, the server may be unregistered *or* registered-but-not-starting (missing `monet` binary, PATH/env, a crash, or a startup timeout) — check the host's MCP status/logs and the server's startup, not just the config entry.
-2. **Workers launch and run on their own.** Only the lead agent is meant to use Monet; confirm each worker sub-agent still starts and completes a task. A worker that silently fails to start usually means its config got mangled during install (see Host notes). Whether a worker can *also see* Monet's tools is host-dependent — see the Codex note.
+2. **Workers launch and run on their own.** Only the lead agent is meant to use Monet; confirm each worker sub-agent still starts and completes a task. A worker that silently fails to start usually means its config got mangled during install (see Host notes). Whether a worker can *also see* Monet's tools is host-dependent (see the Codex note) — a worker can launch fine while still inheriting Monet, so if you need one fully isolated, confirm it doesn't list Monet's tools, not just that it runs.
 
 ### Host notes
 
 <details>
 <summary><strong>Codex</strong></summary>
 
-Codex sub-agents inherit the parent session's `mcp_servers` (Monet included) unless they declare their own — so a worker isn't isolated from Monet by default. To scope a worker off it, disable the server in that worker's config (`mcp_servers.<id>.enabled = false`). Gotcha: a *bare* entry — `[mcp_servers.monet]` with only `enabled = false` and no other fields — has been seen to invalidate the whole sub-agent so Codex silently drops it; if a sub-agent won't start after install, fix or remove that block and confirm it launches.
+Codex sub-agents inherit the parent session's `mcp_servers` (Monet included) unless they declare their own — so a worker isn't isolated from Monet by default. To scope a worker off it, disable the server in that worker's config (`mcp_servers.<id>.enabled = false`). Gotcha: a *bare* entry — `[mcp_servers.monet]` with only `enabled = false` and no other fields — has been seen to invalidate the whole sub-agent so Codex silently drops it; if a sub-agent won't start, repair that block — replace the bare entry with a valid `mcp_servers.<id>.enabled = false` opt-out rather than deleting it (a deleted entry just lets the worker inherit Monet again) — and confirm it launches.
 
 </details>
 
