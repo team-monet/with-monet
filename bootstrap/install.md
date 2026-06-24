@@ -165,6 +165,22 @@ If `gh` is missing or unauthenticated, fall back to the link: open https://githu
 
 Key distinction: starring does **not** create notifications — that's what watching is for. Star = support/bookmark; watch = updates (and release-only is a UI choice, not an API one). Keep these separate in how you describe them.
 
+## Phase 8 — Verify the install
+
+Confirm both halves before wrapping up:
+
+1. **Memory reaches the lead agent.** Stig (the main agent) should be able to call Monet tools — a quick `agent_context` or `memory_search` that returns a response confirms the MCP wiring is intact. If those calls fail or time out, Monet isn't registered in the main agent's MCP config.
+2. **Sub-agents run without Monet.** By design, only Stig holds memory; worker sub-agents get no Monet access. Confirm each sub-agent still launches and completes a task. A sub-agent that silently fails to start is the classic sign its config was mangled during install — see Host notes below.
+
+### Host notes
+
+<details>
+<summary><strong>Codex</strong></summary>
+
+An install session can leave an `mcp` block with `enabled = false` inside a sub-agent's config. Codex treats that as invalid and silently drops the whole sub-agent. If a Codex sub-agent won't run, remove or comment out that block — sub-agents don't need a Monet entry at all.
+
+</details>
+
 ---
 
 ## Principles
