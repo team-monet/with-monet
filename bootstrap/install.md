@@ -18,7 +18,7 @@ Already set up and just want the latest team (Stig + workers)? You don't need to
 1. Re-read `roster.json`, `agents/*.md`, and `agents/stig.md` from the raw-URL base (or your local `with-monet` checkout).
 2. Re-apply Phase 4's write step **to the same scope the team was installed in** — detect that from where the existing `<!-- BEGIN with-monet:stig -->` / `<!-- with-monet:agent -->` markers already live — in your host's lead-persona file and its worker/subagent locations (the surfaces you found in Phase 1), at whichever scope (user or repo) they were installed. Rewrite the Stig block (between the `<!-- BEGIN with-monet:stig -->` / `<!-- END with-monet:stig -->` markers) and each agent file **in that location** — never silently switch a per-repo install to global. **Reconcile, don't clobber:** preserve your local edits, apply the new changes, guard the invariants, and keep `.bak` (see Phase 4).
 
-Skip Phases 1–3 (substrate + MCP already configured) and 5–7 — except: if your host loads agents/MCP only at startup (most do — you noted this in Phase 1), **reload or restart it afterward** so the updated Stig + workers take effect; a running session keeps the old prompts until you do. Phase 4 is idempotent, so this is safe to repeat.
+Skip Phases 1–3 (substrate + MCP already configured), 5–6 (memory-ingest and offer-to-start), and 8 (star) — but **run Phase 7 (verify)**: the agent files were just rewritten, so confirming workers still launch is most needed here. If your host loads agents/MCP only at startup (most do — you noted this in Phase 1), **reload or restart it** before Phase 7 so the updated Stig + workers take effect; a running session keeps the old prompts until you do. Phase 4 is idempotent, so this is safe to repeat.
 
 ---
 
@@ -162,8 +162,7 @@ Confirm both halves before wrapping up:
 <details>
 <summary><strong>Codex</strong></summary>
 
-- `enabled = false` is **not** a valid field on an `mcp_servers` entry in Codex (it's documented only for `skills.config`). Putting it in a sub-agent config invalidates the whole sub-agent, so Codex silently drops it. If a Codex sub-agent won't run, remove that block.
-- Codex sub-agents **inherit the parent session's `mcp_servers`** (Monet included) unless the sub-agent declares its own. So removing the block leaves workers inheriting Monet — they'll run, but they aren't isolated from it. Codex has no documented per-server "disable inherited" switch; to scope a worker off Monet, declare that worker's own `mcp_servers` to override the inherited set.
+Codex sub-agents inherit the parent session's `mcp_servers` (Monet included) unless they declare their own — so a worker isn't isolated from Monet by default. To scope a worker off it, disable the server in that worker's config (`mcp_servers.<id>.enabled = false`). Gotcha: a *bare* entry — `[mcp_servers.monet]` with only `enabled = false` and no other fields — has been seen to invalidate the whole sub-agent so Codex silently drops it; if a sub-agent won't start after install, fix or remove that block and confirm it launches.
 
 </details>
 
