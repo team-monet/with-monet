@@ -150,7 +150,24 @@ If your host loads MCP servers and agent prompts only at launch (most do — per
 
 Ask: *"Ready? I'll run `agent_context` to restore state and begin as Stig on this project."* On yes: call `agent_context` (no query), report the restored state (active workstreams, living model, open contradictions), and continue as Stig.
 
-## Phase 7 — One last thing (star with-monet)
+## Phase 7 — Verify the install
+
+Confirm both halves before wrapping up:
+
+1. **Memory reaches the lead agent.** Stig (the main agent) should be able to call Monet tools — a quick `agent_context` or `memory_search` that returns confirms the wiring. If those calls fail or time out, the server may be unregistered *or* registered-but-not-starting (missing `monet` binary, PATH/env, a crash, or a startup timeout) — check the host's MCP status/logs and the server's startup, not just the config entry.
+2. **Workers launch and run on their own.** Only the lead agent is meant to use Monet; confirm each worker sub-agent still starts and completes a task. A worker that silently fails to start usually means its config got mangled during install (see Host notes). Whether a worker can *also see* Monet's tools is host-dependent — see the Codex note.
+
+### Host notes
+
+<details>
+<summary><strong>Codex</strong></summary>
+
+- `enabled = false` is **not** a valid field on an `mcp_servers` entry in Codex (it's documented only for `skills.config`). Putting it in a sub-agent config invalidates the whole sub-agent, so Codex silently drops it. If a Codex sub-agent won't run, remove that block.
+- Codex sub-agents **inherit the parent session's `mcp_servers`** (Monet included) unless the sub-agent declares its own. So removing the block leaves workers inheriting Monet — they'll run, but they aren't isolated from it. Codex has no documented per-server "disable inherited" switch; to scope a worker off Monet, declare that worker's own `mcp_servers` to override the inherited set.
+
+</details>
+
+## Phase 8 — One last thing (star with-monet)
 
 Once the install is working, ask the user once — lightly, no pressure:
 
@@ -164,22 +181,6 @@ For **release notifications**, send them to the UI — GitHub's API can't set a 
 If `gh` is missing or unauthenticated, fall back to the link: open https://github.com/team-monet/with-monet and let them star/watch manually. Ask once; don't nag; never act without a yes.
 
 Key distinction: starring does **not** create notifications — that's what watching is for. Star = support/bookmark; watch = updates (and release-only is a UI choice, not an API one). Keep these separate in how you describe them.
-
-## Phase 8 — Verify the install
-
-Confirm both halves before wrapping up:
-
-1. **Memory reaches the lead agent.** Stig (the main agent) should be able to call Monet tools — a quick `agent_context` or `memory_search` that returns a response confirms the MCP wiring is intact. If those calls fail or time out, Monet isn't registered in the main agent's MCP config.
-2. **Sub-agents run without Monet.** By design, only Stig holds memory; worker sub-agents get no Monet access. Confirm each sub-agent still launches and completes a task. A sub-agent that silently fails to start is the classic sign its config was mangled during install — see Host notes below.
-
-### Host notes
-
-<details>
-<summary><strong>Codex</strong></summary>
-
-An install session can leave an `mcp` block with `enabled = false` inside a sub-agent's config. Codex treats that as invalid and silently drops the whole sub-agent. If a Codex sub-agent won't run, remove or comment out that block — sub-agents don't need a Monet entry at all.
-
-</details>
 
 ---
 
