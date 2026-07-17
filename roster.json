@@ -90,24 +90,6 @@
       "touchesMonet": false,
       "model": "opus",
       "description": "Use PROACTIVELY for trust-boundary, auth, secrets, or data-exposure concerns: threat-model and review for security risk."
-    },
-    {
-      "name": "reliability",
-      "role": "incident / regression / readiness review",
-      "mode": "subagent",
-      "prompt": "agents/reliability.md",
-      "touchesMonet": false,
-      "model": "sonnet",
-      "description": "Use PROACTIVELY for incident, regression, or release-readiness review: SLOs, observability, and operational risk."
-    },
-    {
-      "name": "aria",
-      "role": "product scope / acceptance criteria",
-      "mode": "subagent",
-      "prompt": "agents/aria.md",
-      "touchesMonet": false,
-      "model": "sonnet",
-      "description": "Use PROACTIVELY when product scope or acceptance criteria are unclear: define what and why, scope the work, and set acceptance criteria."
     }
   ]
 }
