@@ -44,7 +44,7 @@
       "prompt": "agents/mechanic.md",
       "touchesMonet": false,
       "model": "haiku",
-      "description": "Use PROACTIVELY for small, mechanical, low-risk changes: docs, comments, copy, config values, renames, single-file diffs that don't need architectural judgment. Escalate to developer for anything bigger."
+      "description": "Use PROACTIVELY for small, mechanical, low-risk changes: docs, comments, copy, config values, renames, single-file or tightly-scoped few-file diffs that don't need architectural judgment. Escalate to developer for anything bigger."
     },
     {
       "name": "developer",

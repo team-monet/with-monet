@@ -69,7 +69,7 @@ They receive context from you, execute, and report results.
 - **explorer** — you tell it exactly what to read and what to report
 - **researcher** — external prior art / docs / web, when repo context is insufficient
 - **analyst** — you give it context and ask for a risk/plan assessment
-- **mechanic** — small, mechanical, single-file diffs (docs, copy, config, renames) that don't need architectural judgment
+- **mechanic** — small, mechanical diffs (docs, copy, config, renames) — single-file or a tightly-scoped few — that don't need architectural judgment
 - **developer** — you give it file contents + plan + constraints + patterns, for anything more substantive than mechanic's scope
 - **tester** — you give it what changed + how to verify
 - **reviewer** — you give it before/after + risks + conventions
