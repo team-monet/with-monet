@@ -16,7 +16,7 @@ Work through the phases in order. After each, tell the user what happened in one
 
 Already set up and just want the latest Stig persona and worker files? You don't need to re-run onboarding — re-run **Phase 4 and Phase 7** against the latest sources:
 1. Re-read `roster.json`, `agents/*.md`, and `agents/stig.md` from the raw-URL base (or your local `with-monet` checkout).
-2. Re-apply Phase 4's write step **to the same scope the team was installed in** — detect that from where the existing `<!-- BEGIN with-monet:stig -->` / `<!-- with-monet:agent -->` markers already live — in your host's lead-persona file and its worker/subagent locations (the surfaces you found in Phase 1), at whichever scope (user or repo) they were installed. Rewrite the Stig block (between the `<!-- BEGIN with-monet:stig -->` / `<!-- END with-monet:stig -->` markers) and each agent file **in that location** — never silently switch a per-repo install to global. **Reconcile, don't clobber:** preserve your local edits, apply the new changes, guard the invariants, and keep `.bak` (see Phase 4). (Infer team-vs-lead-only from what's already installed — worker files / Tier-B markers present means team; absent means lead-only, and the refresh covers the Stig block only. Don't re-ask the team question here; Phase 4's live re-offer covers that.)
+2. Re-apply Phase 4's write step **to the same scope the team was installed in** — detect that from where the existing `<!-- BEGIN with-monet:stig -->` / `<!-- with-monet:agent -->` markers already live — in your host's lead-persona file and its worker/subagent locations (the surfaces you found in Phase 1), at whichever scope (user or repo) they were installed. Rewrite the Stig block (between the `<!-- BEGIN with-monet:stig -->` / `<!-- END with-monet:stig -->` markers) and each agent file **in that location** — never silently switch a per-repo install to global. **Reconcile, don't clobber:** preserve your local edits, apply the new changes, guard the invariants, and keep `.bak` (see Phase 4). (Read the `with-monet:mode` marker at the top of the installed Stig block — it records team-vs-lead-only and the installed worker list. No marker (an older install)? Infer from what's installed — worker files present means team — and ADD the marker while you're rewriting the block, and the refresh covers the Stig block only. Don't re-ask the team question here; Phase 4's live re-offer covers that.)
 3. **Reconcile removals too:** diff the agent `name`s in the roster you just re-read against the installed worker files carrying the `<!-- with-monet:agent -->` marker in the host's subagent location. A marker-carrying file whose agent is no longer in the roster is an orphan from an older roster — left in place, it keeps receiving dispatches for a role the team no longer has. Show the user the orphan list and offer to remove them, backing each up first (same `.bak` discipline as Phase 4). Never touch a same-named file *without* the marker — that's the user's own custom subagent, not ours.
 
 Skip Phases 1–3 (substrate + MCP already configured), 5–6 (memory-ingest and offer-to-start), and 8 (star) — but **run Phase 7 (verify)**: the agent files were just rewritten, so confirming workers still launch is most needed here (lead-only installs: verify the refreshed Stig block took effect instead — there are no workers). If your host loads agents/MCP only at startup (most do — you noted this in Phase 1), **reload or restart it** before Phase 7 so the updated Stig + workers take effect; a running session keeps the old prompts until you do. Phase 4 is idempotent, so this is safe to repeat.
@@ -66,7 +66,7 @@ The server also provides an in-band session lifecycle with zero host configurati
 **Explain the multi-agent approach, then ask.** Before installing anything here, tell the user why Stig normally works with a worker team rather than doing everything itself: *"I can either handle everything myself in this one conversation, or set up a small team of focused workers I delegate to. Each one runs in its own fresh context — that tends to catch more (a reviewer that never saw the design is a better bug-finder than one that did) and keeps this main conversation small since workers spend their own context, not ours. Want the team, or would you rather I just handle things directly?"* Then act on their answer:
 
 - **Team (default recommendation), if the host supports it** — proceed through Tier A to Tier B below.
-- **Lead-only**, if the user prefers it, or the host can't run isolated subagents (Phase 1) — Stig installs alone: the context engine and Monet loop, no worker files. `agents/stig.md` carries a lead-only section for this already — nothing extra to author beyond the normal persona install. Say so plainly, then do **Tier A** below — the persona write is unconditional; team or lead-only both get Stig installed — skip Tier B, and continue to Phase 5. Stig can re-offer the team later if a task would clearly benefit (a large refactor, a security-sensitive change) — a live re-offer, not a one-time question.
+- **Lead-only**, if the user prefers it, or the host can't run isolated subagents (Phase 1) — Stig installs alone: the context engine and Monet loop, no worker files. `agents/stig.md` carries a lead-only section for this already — nothing extra to author beyond the normal persona install. Say so plainly, then do **Tier A** below — the persona write is unconditional; team or lead-only both get Stig installed — Tier A's mode marker records the choice (`lead-only`), which is how Stig knows not to delegate after a restart — skip Tier B, and continue to Phase 5. Stig can re-offer the team later if a task would clearly benefit (a large refactor, a security-sensitive change) — a live re-offer, not a one-time question.
 
 Stig is the **lead** (the one the user talks to, the only one that delegates, and the only one that *uses* Monet); in team mode the workers are its **subagent actuators**.
 
@@ -76,12 +76,22 @@ Write the body of `agents/stig.md` (wrapped in the `<!-- BEGIN with-monet:stig -
 
 Write it into your host's **always-on lead-persona location** — the file or setting whose content is injected into every session (you know your host's; its docs or the user can confirm). Honor the global-vs-repo scope choice from Phase 1: if the host exposes both a user-scope and a repo-scope location, use the one chosen — never silently switch one for the other.
 
-Wrap the body in idempotent markers so re-running doesn't duplicate it. If the host's lead-persona file requires frontmatter (some hosts' rule files do), put the markers and body **below** that frontmatter — a leading HTML comment can break the file's activation metadata:
+Wrap the body in idempotent markers so re-running doesn't duplicate it. If the host's lead-persona file requires frontmatter (some hosts' rule files do), put the markers and body **below** that frontmatter — a leading HTML comment can break the file's activation metadata. The block's first line is a **mode marker** — team install:
 ```
 <!-- BEGIN with-monet:stig -->
+<!-- with-monet:mode team workers=<comma-separated list of the worker names actually written in Tier B> -->
 …agents/stig.md body…
 <!-- END with-monet:stig -->
 ```
+— or lead-only install:
+```
+<!-- BEGIN with-monet:stig -->
+<!-- with-monet:mode lead-only -->
+…agents/stig.md body…
+<!-- END with-monet:stig -->
+```
+The marker is the persona's durable record of the install-time choice — Stig reads it at runtime; write it accurately and update it whenever the installed worker set changes.
+
 If the markers already exist, replace the block in place; never append a second copy, and never clobber the user's other content in that file (back it up first).
 
 **Tier B — Workers (only where the host has real isolated subagents).** Install the worker team only if your host has a **true named-subagent primitive** — one that gives each worker its *own fresh, isolated context* the lead delegates into, separate from the lead's context and with its own tool access. An always-on "rules"/"instructions" mechanism is **not** this: it bleeds every persona into the main context, breaking the "workers run separately" design — the lead is the only agent that *uses* Monet (the workers' role prompts never involve memory). **Feature-detect** this from the host's docs — don't infer it from the host's name. Confirm too that the host's subagents have the tool access each worker needs (file-edit for `mechanic`/`developer`/`tester`, web for `researcher`); if they're read-only, tell the user — those workers can't do their job there.
@@ -109,6 +119,8 @@ disallowedTools: mcp__monet
 <body of agents/explorer.md>
 ```
 
+After the worker files are written, update the mode marker's `workers=` list (Tier A, above) to exactly the set just written — full or trimmed — the marker must never advertise a worker that wasn't installed.
+
 **No real isolated subagents on this host: that's lead-only, not a stop.** Without a true subagent primitive, workers-as-rules or in-conversation role-play would break the isolation invariant — so don't install worker files here. This isn't a dead end: Stig still installs as lead-only (see the top of this phase) and the Monet loop works fully standalone. Tell the user plainly this host can't run the worker team specifically (it needs a real subagent primitive alongside MCP) — not that Monet itself doesn't work here.
 
 **Write each file transparently, one at a time.** Use your host's file-write tool so the user sees every file's content as it's written; never generate a script that batch-writes the agents directory. Host permission systems treat opaque scripted writes to agent config as suspect and will (rightly) block them — per-file writes the user can read are both the polite and the working path.
@@ -125,7 +137,7 @@ disallowedTools: mcp__monet
 
 Show the merged result, write only on the user's approval, and keep the `.bak`. A coding agent can do this reconciliation by judgment — no version-pinning or 3-way merge tooling required; `.bak` plus approve-before-write keep it safe.
 
-The user may request a trimmed worker set (e.g. skip `security`) even in team mode — the full team is the default recommendation, not a forced install. A full opt-out is the **lead-only** path above (Phase 4 top), not a silent Stig-only fallback by omission.
+The user may request a trimmed worker set (e.g. skip `security`) even in team mode — the full team is the default recommendation, not a forced install. A full opt-out is the **lead-only** path above (Phase 4 top), not a silent Stig-only fallback by omission. Record the trim in the mode marker (`workers=` lists only what was actually written) — Stig degrades gracefully for missing roles, but only if the marker tells the truth.
 
 ## Phase 5 — Offer the memory-ingest pipeline
 
