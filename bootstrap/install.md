@@ -157,9 +157,15 @@ Verify the context profile like any other capture: `memory_search` / `memory_fet
 
 ## Phase 6 — Offer to start
 
-If your host loads MCP servers and agent prompts only at launch (most do — per Phase 1), tell the user to reload/restart so `monet` connects and the team registers before starting.
+### Capture one live thing before you go
 
-Ask: *"Ready? I'll run `agent_context` to restore state and begin as Stig on this project."* On yes: call `agent_context` (no query), report the restored state (active workstreams, living model, open contradictions), and continue as Stig.
+Before wrapping up, ask once: *"One last thing — what are you working on right now, or what's top of mind for this project?"* If they answer, store it as a workstream (a `memory_checkpoint` with their answer as the open thread). This is what makes the very first restore feel real instead of theoretical. Skip silently if they'd rather not; don't push.
+
+If your host loads MCP servers and agent prompts only at launch (most do — per Phase 1), tell the user to reload/restart so `monet` connects — and, on a team install, the workers register — before starting.
+
+Ask: *"Ready? I'll run `agent_context` to restore state and begin as Stig on this project."* On yes: call `agent_context` (no query) and report what comes back — **and say, plainly, that none of it lives in a file or a commit**: the workstream they just told you, the ways-of-working and preferences Phase 5 ingested, any stale flags or open contradictions. This is the first moment the install actually pays off; don't let it read as a generic status line. Something like: *"You told me you're [workstream] — that's not in any file, `git log` won't show it, it's just remembered. Plus [N] things about how this project works and how you like to work, from [sources]."* Then continue as Stig.
+
+(No restart available or practical in this host? Skip the reload framing and run the same `agent_context` call and narration in-band, right now — the demonstration is about what comes back, not about proving a fresh process.)
 
 ### Show them their memory — `monet dashboard`
 
