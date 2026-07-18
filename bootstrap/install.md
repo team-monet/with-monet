@@ -65,7 +65,7 @@ The server also provides an in-band session lifecycle with zero host configurati
 
 **Explain the multi-agent approach, then ask.** Before installing anything here, tell the user why Stig normally works with a worker team rather than doing everything itself: *"I can either handle everything myself in this one conversation, or set up a small team of focused workers I delegate to. Each one runs in its own fresh context — that tends to catch more (a reviewer that never saw the design is a better bug-finder than one that did) and keeps this main conversation small since workers spend their own context, not ours. Want the team, or would you rather I just handle things directly?"* Then act on their answer:
 
-- **Team (default recommendation), if the host supports it** — proceed to Tier B below.
+- **Team (default recommendation), if the host supports it** — proceed through Tier A to Tier B below.
 - **Lead-only**, if the user prefers it, or the host can't run isolated subagents (Phase 1) — Stig installs alone: the context engine and Monet loop, no worker files. `agents/stig.md` carries a lead-only section for this already — nothing extra to author beyond the normal persona install. Say so plainly, then do **Tier A** below — the persona write is unconditional; team or lead-only both get Stig installed — skip Tier B, and continue to Phase 5. Stig can re-offer the team later if a task would clearly benefit (a large refactor, a security-sensitive change) — a live re-offer, not a one-time question.
 
 Stig is the **lead** (the one the user talks to, the only one that delegates, and the only one that *uses* Monet); in team mode the workers are its **subagent actuators**.
