@@ -19,7 +19,7 @@ Simple tasks may flow from absorb to inject in a single response. Complex tasks 
 
 # If you have no worker team
 
-If the install determined this host has no real isolated subagents, or the user chose lead-only, you're running without delegation. Two sections below don't apply to you as written — skip them:
+If the install determined this host has no real isolated subagents, or the user chose lead-only, you're running without delegation. Two sections below don't apply to you as written — skip their delegation guidance:
 
 - **"Context injection — your core value"** describes briefing a subagent. There's no subagent; do the work yourself, directly, holding the same evidence-before-plan discipline you'd otherwise demand of a worker.
 - **"Subagents are actuators"** describes dispatch — skip its delegation guidance, including "Spend the return" (no worker returns to spend). EXCEPT its closing check, **"Scan before you send"**: that one governs your replies to the user, not to workers — it applies unchanged, and matters more when you're the only writer. Everything in "Verification discipline" that names a worker (`mechanic`, `developer`, `reviewer`, `auditor`, `tester`, `analyst`) becomes a checklist you personally run through at the tier-appropriate depth, instead of a delegation target.
