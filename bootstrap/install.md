@@ -143,14 +143,14 @@ The user may request a trimmed worker set (e.g. skip `security`) even in team mo
 
 Ask: *"Want me to seed Monet from existing knowledge so you don't start empty?"* The richest sources are the ones that already capture how you and your team work:
 
-- **Agent reference files** — `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, Cursor/Cline/Copilot/Windsurf/Continue rules, and any other agent instructions you've written. These often hold the most distilled project knowledge.
+- **Agent reference files** — `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, Cursor/Cline/Copilot/Windsurf/Continue rules, and any other agent instructions you've written. These often hold the most distilled project knowledge — but if one's still actively edited, linking (below) usually beats a one-time capture.
 - **`README`s and `docs/`** in this repo — architectural decisions, conventions, ADRs.
 - **Notes and decision docs** — `NOTES.md`, `TODO`, scratch docs, anything that records *why* decisions were made.
 - A path or URL the user names.
 - Skip for now.
 - (If you're coming from a prior Monet store, say so and I can pull that in too — if it's a *separate* old install with its own MCP server, see the cross-server note in `consolidate-memory.md`.)
 
-For each chosen source: read it, and `memory_store` the durable facts/decisions/patterns (the substrate dedups automatically — store liberally, don't pre-curate). Don't ingest secrets. **Skip Monet's own wiring:** when the source is `CLAUDE.md` (which holds Stig's prompt) or an installed agent prompt, don't store the `<!-- BEGIN with-monet:stig -->…<!-- END with-monet:stig -->` block or any `<!-- with-monet:agent -->`-marked file. Summarize what landed.
+For each chosen source: read it, and `memory_store` the durable facts/decisions/patterns (the substrate dedups automatically — store liberally, don't pre-curate) — unless it's a still-actively-edited agent-instruction file you're linking instead of capturing (below), which skips this step entirely. Don't ingest secrets. **Skip Monet's own wiring:** when the source is `CLAUDE.md` (which holds Stig's prompt) or an installed agent prompt, don't store the `<!-- BEGIN with-monet:stig -->…<!-- END with-monet:stig -->` block or any `<!-- with-monet:agent -->`-marked file. Summarize what landed.
 
 Then build the first **context profile** — how this project works, and how this user likes to work. Keep these as two separate memory families; don't bury personal style inside a project convention blob. Also capture at the right granularity: store a coherent high-level concept when the future task needs the whole working model, and store detailed scoped facts when exact recall matters.
 
@@ -166,6 +166,24 @@ Ask directly for the preferences that aren't written down anywhere — especiall
 Verify the context profile like any other capture: `memory_search` / `memory_fetch` the new ways-of-working and personal-preference concepts, synthesize if needed, and summarize what Monet now knows. These concepts are what Stig gathers at task start, injects into worker briefings under distinct headings, and applies to its own user-facing writing.
 
 **Existing knowledge to consolidate?** If you find a meaningful pile — agent reference files (`CLAUDE.md`/`AGENTS.md`/Cursor/Cline/Copilot/Windsurf rules), a tool-managed memory store, scattered notes/ADRs, or an existing Monet store — don't leave it scattered. Offer the interactive consolidation playbook [`bootstrap/consolidate-memory.md`](consolidate-memory.md) (same raw-URL base as above): capture each source into Monet, organize into per-project circles *with* the user, then retire the source (a pointer or archive) so Monet becomes the single place to read from. This Phase-5 pass ingests but never retires; consolidation does the organize-and-retire, interactively and reversibly. Skip if there's nothing meaningful to consolidate.
+
+### Or link it live, instead of capturing it
+
+Capturing is a snapshot: Monet stores what a file said right now, and if you consolidate, the file gets retired in favor of that snapshot. Some sources are better left live: `CLAUDE.md`, `AGENTS.md`, and similar agent-instruction files are usually edited often, by more than one tool or teammate — freezing them means Monet quietly drifts from what the file actually says.
+
+For those, offer **linking**: Monet registers the file (or a repo's Markdown tree) as a source it keeps in sync, rather than a one-time capture. The file stays exactly where it is, fully live and editable — nothing gets stubbed.
+
+1. Register: `monet source add <name> --type repo-md --allow-caller local-agent --allow-project <project id> --include <the specific file or glob, e.g. CLAUDE.md>`. `--allow-caller` and `--allow-project` are both mandatory, and Monet checks them against the identity its *own* server derives — not whatever you pass. `local-agent` is the right `--allow-caller` value unless the user runs multiple named agents against this store. For `--allow-project`: if this project has a git `origin` remote, it's the canonical `host/owner/repo` form (e.g. `github.com/team-monet/with-monet` — lowercased host, no scheme, no `.git`); with no remote, it's the same folder-hash circle name Phase 3 printed as `Circle: <name>` when the server started. There's no standalone lookup command for either value — `add` always prints a `Server identity: caller … · project …` line showing what the server actually derived, so if your value didn't match, reconcile with `monet source update <source-id> --allow-caller <id> --allow-project <id>`. Use `--type git-md` (with `--remote`, `--branch`, `--allow-scheme`, `--allow-host`) for a source living in a different repo.
+2. Sync once: call the `source_sync` MCP tool with the new source's id — registration alone doesn't pull content (`source_status` reports `pending-initial-sync` until you do).
+3. It stays current from there: re-run `source_sync` for the latest, or set `--refresh interval --interval-seconds <n>` at registration for Monet to refresh on its own. `source_list` / `source_status` / `source_path` show what's registered, its sync state, and the sealed snapshot path.
+
+**Default for `CLAUDE.md`/`AGENTS.md`: link, don't capture** — they're exactly the living, multi-consumer file type that shouldn't get frozen or stubbed. Reserve capture-and-retire for genuinely inert piles (`NOTES.md`, old ADRs, another tool's memory bank) where "Monet becomes the one place to read this from" is actually true. If the user wants their `CLAUDE.md` fully retired anyway, offer it — don't default to it.
+
+**Don't link Monet's own wiring.** A whole-repo source with no `--include` picks up every Markdown file — including installed worker prompts and, inside `CLAUDE.md`, the `<!-- BEGIN with-monet:stig -->` block. Linking works on whole files (include/exclude globs — no partial-file exclusion), so scope `--include`/`--exclude` to the user's own content and keep the harness files out.
+
+### Pin what's load-bearing to the First Block
+
+For anything ingested (captured or linked) that reads as a load-bearing rule or standing preference — not just a convention note, but something that should govern every future session — offer to pin it: *"This looks like a rule you'd want followed every time, not just noted — want it pinned to your First Block?"* One at a time, on explicit yes: `memory_first_block(action: "promote", conceptId, summary)`. Don't pin everything ingested; ask per-item where genuinely ambiguous rather than defaulting either way.
 
 ## Phase 6 — Offer to start
 
