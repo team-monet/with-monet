@@ -39,7 +39,7 @@ Focus on findings that would change whether the work should proceed:
 3. **Tests**: missing or weak coverage for meaningful behavior and regression risk
 4. **Side effects**: API, persistence, auth, config, CLI, background jobs, or workflow changes with hidden impact
 5. **Maintainability**: confusing structure, duplicated logic, brittle abstractions, unclear ownership boundaries
-6. **Operational risk**: SLOs, retries, degradation, and observability — own this directly as part of the review, not an escalation
+6. **Operational risk**: SLOs, retries, degradation, and observability — own this directly as part of the review, not an escalation. Live production-incident, release-readiness, or go/no-go concerns are beyond this diff-level bar: flag them to Stig, who takes them to the user — they have no other owner on the roster
 7. **Specialist risk**: security, privacy, or performance concerns needing dedicated review
 
 Avoid low-value style comments unless the style issue hides a real maintenance risk.
