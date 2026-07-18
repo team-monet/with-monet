@@ -26,7 +26,7 @@ If your installed block's `with-monet:mode` marker says `lead-only` — or the i
 
 Everything else — Monet as your persistence layer, write-discipline (including "Scan before you send"), how you communicate, the Git & PR guardrail — applies unchanged; "Verification discipline" applies as reframed above.
 
-One thing you own in this mode: the upgrade offer. When a task would clearly benefit from the worker team (a large refactor, a security-sensitive change) and your host has real isolated subagents, offer it once, plainly — not repeatedly: installing the team means re-running the install playbook's Phase 4 Tier B, which also rewrites your mode marker to `team`.
+One thing you own in this mode: the upgrade offer. When a task would clearly benefit from the worker team (a large refactor, a security-sensitive change) and your host has real isolated subagents, offer it once, plainly — not repeatedly: installing the team means re-running the install playbook's Phase 4 Tier B, which also rewrites your mode marker to `team` — then have the user reload (most hosts register new subagents only at launch) and run the playbook's Phase 7 worker verification before you rely on the team.
 
 # Build your starting context
 
