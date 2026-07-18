@@ -29,7 +29,7 @@ You install Monet **globally for this user** (every project), not just the curre
 
 1. **Identify your host and its install surfaces.** You're the agent running inside it, so you know — or its docs do — where it keeps, at user scope, (a) its **MCP server config**, (b) its **always-on lead-persona / system prompt**, and (c) its **named-subagent definitions** (if it has them). Note two capabilities that gate the rest of the install:
    - **MCP support — required.** Monet is an MCP server and Stig's whole loop is MCP tools (`agent_context`, `memory_store`, `memory_checkpoint`). If the host can't run MCP servers, **stop** and tell the user Monet needs an MCP-capable host.
-   - **Real isolated subagents — needed for the worker team.** Each worker must run in its *own fresh context* the lead can delegate into — not an always-on "rule" that bleeds into the main context. If the host has this, you'll install the full team (Phase 4 Tier B); if it doesn't, the harness can't run here and you'll **stop** — Stig is an orchestrator, so with no workers there's nothing to orchestrate. **Feature-detect it from the host's docs — don't infer it from the host's name** (host capabilities change fast).
+   - **Real isolated subagents — enable the worker team, but aren't required to install.** Each worker runs in its *own fresh context* the lead delegates into — not an always-on "rule" that bleeds into the main context. If the host has this, you'll offer the full team (Phase 4 Tier B). If it doesn't — or the user would rather the main agent handled everything itself — Stig still installs **lead-only**: the context engine and Monet loop work standalone, without delegation. **Feature-detect subagent support from the host's docs — don't infer it from the host's name** (host capabilities change fast).
 
    Also note whether the host loads MCP/agents only at startup (you'll tell the user to reload afterward). Anything unclear — check the host's docs or ask the user; don't guess.
 2. Confirm: *"You're on **<host>**. I'll install Monet **globally** so it works across all your projects — or scoped to just this repo if you'd rather. Anything special about your setup?"*
@@ -63,7 +63,12 @@ The server also provides an in-band session lifecycle with zero host configurati
 
 ## Phase 4 — Install the agent team (user scope)
 
-**Install the full team wherever the host supports it.** Stig is a context engine whose purpose is to orchestrate the workers, so don't drop the workers by *choice* on a host that can run them. Stig is the **lead** (the one the user talks to, the only one that delegates, and the only one that *uses* Monet); the workers are its **subagent actuators**. (A host that *can't* provide isolated subagents can't run the orchestration team at all — see Tier B.)
+**Explain the multi-agent approach, then ask.** Before installing anything here, tell the user why Stig normally works with a worker team rather than doing everything itself: *"I can either handle everything myself in this one conversation, or set up a small team of focused workers I delegate to. Each one runs in its own fresh context — that tends to catch more (a reviewer that never saw the design is a better bug-finder than one that did) and keeps this main conversation small since workers spend their own context, not ours. Want the team, or would you rather I just handle things directly?"* Then act on their answer:
+
+- **Team (default recommendation), if the host supports it** — proceed to Tier B below.
+- **Lead-only**, if the user prefers it, or the host can't run isolated subagents (Phase 1) — Stig installs alone: the context engine and Monet loop, no worker files. `agents/stig.md` carries a lead-only section for this already — nothing extra to write. Say so plainly and move to Phase 5. Stig can re-offer the team later if a task would clearly benefit (a large refactor, a security-sensitive change) — a live re-offer, not a one-time question.
+
+Stig is the **lead** (the one the user talks to, the only one that delegates, and the only one that *uses* Monet); in team mode the workers are its **subagent actuators**.
 
 **Tier A — Lead persona (ask first, highest-impact write).** This is the install's highest-impact write, so it gets its own decision point. Ask: *"Install Stig as the lead persona in your [host's lead-persona location]? This changes how every session on this machine starts."* A general "go ahead with the install" doesn't cover this — wait for an explicit yes (your host's permission system will likely insist on the same). On a no, offer to scope Stig to the current repo's equivalent per-repo location instead (the per-repo option from Phase 1).
 
@@ -104,7 +109,7 @@ disallowedTools: mcp__monet
 <body of agents/explorer.md>
 ```
 
-**If the host has no real isolated subagents: stop — don't install the team here.** Stig is fundamentally an orchestrator: its whole job is to inject context into delegatable workers, so without real isolated subagents there's no coherent install — workers-as-rules or in-conversation role-play breaks the isolation invariant, and the Stig prompt itself would still tell the lead to delegate to workers that don't exist. Tell the user this host can't run the Stig + worker harness (it needs a real subagent primitive alongside MCP); they can still use the **Monet MCP server standalone** for memory. Both requirements — MCP *and* isolated subagents — gate the install; missing either means stop, same as the no-MCP case in Phase 1.
+**No real isolated subagents on this host: that's lead-only, not a stop.** Without a true subagent primitive, workers-as-rules or in-conversation role-play would break the isolation invariant — so don't install worker files here. This isn't a dead end: Stig still installs as lead-only (see the top of this phase) and the Monet loop works fully standalone. Tell the user plainly this host can't run the worker team specifically (it needs a real subagent primitive alongside MCP) — not that Monet itself doesn't work here.
 
 **Write each file transparently, one at a time.** Use your host's file-write tool so the user sees every file's content as it's written; never generate a script that batch-writes the agents directory. Host permission systems treat opaque scripted writes to agent config as suspect and will (rightly) block them — per-file writes the user can read are both the polite and the working path.
 
@@ -120,7 +125,7 @@ disallowedTools: mcp__monet
 
 Show the merged result, write only on the user's approval, and keep the `.bak`. A coding agent can do this reconciliation by judgment — no version-pinning or 3-way merge tooling required; `.bak` plus approve-before-write keep it safe.
 
-The user may request a trimmed worker set, but the full team is the default — don't reduce to Stig-only by *choice*. (A host without real isolated subagents can't run the team at all — the install stops there, per Tier B.)
+The user may request a trimmed worker set (e.g. skip `security`) even in team mode — the full team is the default recommendation, not a forced install. A full opt-out is the **lead-only** path above (Phase 4 top), not a silent Stig-only fallback by omission.
 
 ## Phase 5 — Offer the memory-ingest pipeline
 
