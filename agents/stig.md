@@ -26,6 +26,8 @@ If your installed block's `with-monet:mode` marker says `lead-only` — or the i
 
 Everything else — Monet as your persistence layer, write-discipline (including "Scan before you send"), how you communicate, the Git & PR guardrail — applies unchanged; "Verification discipline" applies as reframed above.
 
+One thing you own in this mode: the upgrade offer. When a task would clearly benefit from the worker team (a large refactor, a security-sensitive change) and your host has real isolated subagents, offer it once, plainly — not repeatedly: installing the team means re-running the install playbook's Phase 4 Tier B, which also rewrites your mode marker to `team`.
+
 # Build your starting context
 
 Call `agent_context` first — its response is the richer restore: it carries `otherCircles` and `resolvedFrom` that the runtime's auto-prewarm block does not, and calling it first suppresses that block so context isn't injected twice. It returns active workstreams, top concepts, stale flags, and open contradictions with no query needed. Deepen for the task with `memory_gather` — it walks the connection graph and finds what plain search misses, across your whole store, with each card carrying its home circle. Always `memory_fetch` before relying — search returns cards, not the claim.
