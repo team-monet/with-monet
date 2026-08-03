@@ -260,13 +260,36 @@ Say one line and move on: *"Nothing to sort — Monet will pick this up as we wo
 
 ## Phase 6 — Offer to start
 
-### Capture one live thing before you go
+### Capture the one species the sort could not reach
 
-Before wrapping up, ask once: *"One last thing, so next time picks up where this one left off — what are you working on right now, or what's top of mind for this project?"* If they answer, screen it before storing — redact credentials, tokens, customer data, and anything the user marks transient (or ask when unsure) — then store it as a workstream (a `memory_checkpoint` with their screened answer as the open thread — Monet has been live since Phase 3's check). This is what makes the very first restore feel real instead of theoretical. Skip silently if they'd rather not; don't push.
+Phase 5 sorted what was already written down. There is a fourth species it could not touch, because
+it exists nowhere on disk: **what they are in the middle of.** Ask once: *"One last thing — what are
+you working on right now, or what's top of mind?"* Screen the answer before storing it — credentials,
+tokens, customer data, anything they mark transient (ask when unsure) — then `memory_checkpoint` it
+as the open thread.
+
+Frame it as what it is. The sort's payoff already happened and they watched it: their standing file
+got shorter and the rules in it now arrive at the moments they govern. This is a different claim —
+that the thing they just said out loud, which no file holds and no `git log` will show, is still
+there tomorrow. Skip silently if they'd rather not; don't push.
 
 If your host loads agent prompts only at launch (most do — per Phase 1), tell the user to reload/restart so the Stig persona takes effect — and, on a team install, the workers register — before starting. (Monet itself has been live since Phase 3; the reload is about the agent files.)
 
-Ask: *"Ready? I'll run `agent_context` to restore state and begin as Stig on this project."* On yes: call `agent_context` (no query) and report what comes back — **and be precise about provenance, narrating only what the restore actually returned**: if they gave you a workstream in the capture step and it came back, lead with it — it never lived in any file; if Phase 5 ingested their files, name a source and one concrete preference. If either is missing — they skipped the ask, Phase 5 was deferred, or something didn't come back — narrate what *is* there instead, and say so plainly if the store is still near-empty ("this grows as we work"): a real miss you can fix beats a faked memory. This is the first moment the install actually pays off; don't let it read as a generic status line. With both in hand, something like: *"You told me you're [workstream] — that's not in any file, `git log` won't show it, it's just remembered. And from your [CLAUDE.md / notes], I now carry [one concrete preference or convention] — [N] things total."* Then continue as Stig.
+Ask: *"Ready? I'll run `agent_context` to restore state and begin as Stig on this project."* On yes:
+call `agent_context` (no query) and report what comes back — **narrating only what the restore
+actually returned.** Be precise about provenance, because the two halves make different claims and
+conflating them cheapens both:
+
+- **The skeleton** is what governs you now — the principles the sort ratified, arriving on every
+  request without anyone fetching them. Name one, in their own words.
+- **The workstream** is continuity — the thing they said aloud a minute ago that lives in no file.
+
+If either is missing — they skipped the ask, the sort was deferred, something didn't come back —
+narrate what *is* there and say so plainly if the store is still near-empty ("this grows as we
+work"). A real miss you can fix beats a faked memory, and this is the first moment the install pays
+off; don't let it read as a status line. With both in hand, something like: *"Four lines govern me
+now — [one of them], from your own file. And you told me you're [workstream], which isn't in any
+file and `git log` won't show."* Then continue as Stig.
 
 (No restart available or practical in this host? Skip the reload framing and run the same `agent_context` call and narration in-band, right now — the demonstration is about what comes back, not about proving a fresh process. Source the narration strictly from what the tool call actually returns, not from what's already in this conversation — if the workstream doesn't come back, say so instead of repeating it from memory; a real miss you can fix beats a convincing fake.)
 
