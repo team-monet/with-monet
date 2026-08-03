@@ -1,6 +1,26 @@
-# Monet — interactive memory consolidation (capture & retire)
+# Monet — interactive memory consolidation
 
-**You are the user's coding agent.** Knowledge about this user's projects is probably scattered — in agent reference files (`CLAUDE.md`, `AGENTS.md`, Cursor/Cline/Copilot/Windsurf/Continue/Zed/Aider rules), in tool-managed memory stores, in plain `NOTES.md` / `TODO` / decision docs, or in a prior Monet store. This playbook **captures each of those sources into Monet and then retires the source**, so Monet becomes the single place your future sessions read from — instead of competing with half a dozen half-stale stores.
+**You are the user's coding agent.** This playbook moves knowledge that is trapped in *another
+memory system* into Monet, and sorts standing instruction files by species. It is deliberately
+narrower than it used to be.
+
+**What it no longer does: sweep up project documentation.** `README`s, `docs/`, ADRs, `NOTES.md` —
+those stay exactly where they are and you read them. You have glob, grep and read, which give you the
+current bytes with no index to go stale; pulling them into Monet buys one thing over that (surfacing
+a document nobody knew to look for) and that one thing is not dependable today (monet-core#135,
+paused for redesign). Capturing them would trade exactness for findability and get neither.
+
+So this playbook has two real jobs:
+
+1. **Another tool's memory store** — a Cline `memory-bank/`, a prior Monet store. That is genuinely
+   someone else's memory competing with Monet's, and consolidating it is the whole point.
+2. **Standing instruction files that onboarding did not reach** — a global `~/.claude/CLAUDE.md`, a
+   rules file added since. These get the **species sort** (`install.md` Phase 5), not a capture:
+   principles to the skeleton, rules bound to their gates, facts to recall.
+
+The whole point is *how* it feels: not a silent batch importer, but a smart peer helping the user
+consolidate their own knowledge. Discover, propose *with reasoning*, confirm, capture, verify — in
+small, reviewable steps.
 
 The whole point is *how* it feels: not a silent batch importer, but a smart peer helping the user consolidate their own knowledge. Discover, propose *with reasoning*, confirm, capture, verify, retire — in small, reviewable steps.
 
@@ -10,13 +30,20 @@ The whole point is *how* it feels: not a silent batch importer, but a smart peer
 - **Capture before you retire — never the reverse.** A source is *captured* only once its content is stored in Monet **and** reads back coherently (Phase 6). Only then is it eligible to retire.
 - **Non-destructive until confirmed, reversible after.** Preview everything; apply only on an explicit go-ahead; work in batches. Retiring is **opt-in per source** and defaults to a **pointer or archive** — never a delete. Hard deletion happens only if the user explicitly asks for that file. Keep anything ambiguous where it is and say so.
 - **Idempotent.** Re-running must not duplicate or re-retire. Before capturing, check whether you already captured it (Phase 3); before retiring, check whether it's already a Monet pointer/archive (Phase 1) and skip it.
-- **Keep exactly three context families, and capture at the right resolution.** **TECHNICAL / Project technical-system context** (architecture, contracts, dependencies, codebase patterns, failure modes, operational constraints, prior approaches/outcomes, plus relevant team conventions, commands, and ways of working) is project-scoped; **USER / User context** (goals, decision style, preferences, risk tolerance, communication, autonomy/approval boundaries, and recurring corrections) is explicitly global or project-specific; **PRODUCT / Project product context** (users/outcomes, promise/direction, priorities/non-goals, supported boundary, success signals, decisions, hypotheses/open questions, and trade-offs/disposition) is project-scoped, with current-circle context governing and sibling-project context serving as analogy only. Keep every family source-grounded through evidence and `sourceRefs`, and preserve stale/disputed status. Capture and verify them as separate concepts so Stig can apply the right subset later. Use both levels when useful: a coherent state-level concept for the working model, plus precise scoped facts for exact commands, paths, decisions, approval boundaries, and wording.
+- **Sort by species first, then capture at the right resolution.** Anything binding is a **principle** (no trigger — enters the always-on skeleton, user-declared only) or a **rule** (a moment triggers it — bound to that stage). Anything not binding is a **fact** (found when needed) or a **workstream** (current state, which belongs in a checkpoint or the tracker, never as durable context). Only facts go through the capture flow below. Within facts, the three context families are still the right resolution: **TECHNICAL / Project technical-system context** (architecture, contracts, dependencies, codebase patterns, failure modes, operational constraints, prior approaches/outcomes, plus relevant team conventions, commands, and ways of working) is project-scoped; **USER / User context** (goals, decision style, preferences, risk tolerance, communication, autonomy/approval boundaries, and recurring corrections) is explicitly global or project-specific; **PRODUCT / Project product context** (users/outcomes, promise/direction, priorities/non-goals, supported boundary, success signals, decisions, hypotheses/open questions, and trade-offs/disposition) is project-scoped, with current-circle context governing and sibling-project context serving as analogy only. Keep every family source-grounded through evidence and `sourceRefs`, and preserve stale/disputed status. Capture and verify them as separate concepts so Stig can apply the right subset later. Use both levels when useful: a coherent state-level concept for the working model, plus precise scoped facts for exact commands, paths, decisions, approval boundaries, and wording.
 - **Leave Monet's own wiring alone — in any host.** Monet's installed lead/worker prompts are config, **not** user knowledge: never capture or retire them. They're marked host-agnostically — Stig's prompt sits between `<!-- BEGIN with-monet:stig -->` / `<!-- END with-monet:stig -->` sentinels in the host's lead-persona target (Claude Code: `CLAUDE.md`), and every installed worker prompt carries a `<!-- with-monet:agent -->` sentinel. Recognize those markers wherever the team was installed (`.claude/agents/`, `.cursor/rules/`, `.continue/rules/`, …).
 
 ## Phase 0 — When to run this
 Run when there's a meaningful pile of existing knowledge to consolidate, or whenever the user asks to organize / migrate / "sort out" their memory. Offer it during onboarding (`install.md` Phase 5) when you detect any of: agent reference files in the repo (`CLAUDE.md`, `AGENTS.md`, Cursor/Cline/Copilot/Windsurf/Continue rules), a tool-managed memory store, or scattered notes/decision docs. A prior Monet store (a non-empty `"default"` circle) is also a candidate if the user mentions coming from one.
 
-**Still-actively-edited agent-instruction files may not belong here.** Before capturing `CLAUDE.md`, `AGENTS.md`, or another tool's rule file that's still being actively edited, consider **linking** it as a live Monet source instead of capturing-and-retiring it — see `install.md` Phase 5, "Or link it live, instead of capturing it". Capture-and-retire remains the right call for genuinely inert content (`NOTES.md`, old ADRs, another tool's memory bank) — nothing changes there.
+**An actively-edited agent-instruction file is sorted, not captured.** `CLAUDE.md`, `AGENTS.md` and
+their kin are standing instruction — the species sort dissolves them (`install.md` Phase 5) and the
+file shrinks to a bootstrap line plus the materialized skeleton. Do not capture one wholesale as
+facts; that was the old flow and it is what put rules into the always-on layer in the first place.
+
+**Inert project docs are not captured either** — `NOTES.md`, old ADRs, `docs/` stay where they are
+and you read them (see the top of this file). What remains for capture-and-retire is the narrow
+case it was always best at: **another tool's memory bank**, which has no reader but that tool.
 
 Set expectations in a line: *"I can pull your scattered knowledge — agent rules, notes and decision docs, and any prior Monet memories — into Monet, then tidy each source so Monet's the one place we read from. I'll show you every step, capture before I touch anything, and never delete something you read at runtime — those become a short pointer. Want to do a pass?"*
 
@@ -25,7 +52,7 @@ With your own file tools (`Glob`/`Read`/`Bash`), build a map of candidate source
 
 - **Agent-config files (read at runtime).** `CLAUDE.md` (root + nested `{subdir}/CLAUDE.md`, follow `@path` imports ≤5 deep), `.claude/rules/*.md`; `AGENTS.md` (root + nested, `AGENT.md`, `AGENTS.local.md`); `.github/copilot-instructions.md` + `.github/instructions/**/*.instructions.md` (note `applyTo` globs); Cursor (`.cursorrules` legacy **vs** `.cursor/rules/*.mdc`); Cline/Roo (`.clinerules`, `.roo/rules/`); Windsurf (`.windsurfrules`, `.windsurf/rules/`); Continue (`.continue/rules/`); Zed (`.rules`); Aider (`CONVENTIONS.md`, only if `.aider.conf.yml` references it); Gemini (`GEMINI.md`), Firebase IDX (`.idx/airules.md`), JetBrains Junie (`.junie/guidelines.md`). These are read by their tools at runtime — retire them via the **pointer-stub** flow (Phase 7), never wholesale archive.
 - **Tool-managed memory stores (direct analogues, high priority).** Cline `memory-bank/` (a folder the tool maintains as its memory, not a single runtime-read rules file).
-- **Inert notes & decision docs.** `NOTES.md` / `TODO.md` / scratch; ADR/RFC dirs (`docs/adr`, `docs/decisions`, `docs/rfcs`); `README` note-sections; `docs/` scratch.
+- **Inert notes & decision docs.** `NOTES.md` / `TODO.md` / scratch; ADR/RFC dirs (`docs/adr`, `docs/decisions`, `docs/rfcs`); `README` note-sections; `docs/` scratch. **Note them, don't capture them.** These are project information: the file is the truth and you read it. Listing them is still useful — the user may not know what they have, and a line like *"you have eleven ADRs under docs/decisions; I read those when the work touches them"* is worth saying — but nothing here gets pulled into Monet.
 - **Prior Monet store** — if the user mentions coming from a prior Monet install, check the `"default"` circle (gauge with `memory_list(circle:"default")`, or `memory_overview` / `memory_search` if your runtime lacks `memory_list`).
 
 **Exclude — never capture or retire:**
