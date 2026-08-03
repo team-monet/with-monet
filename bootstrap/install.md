@@ -173,7 +173,7 @@ The user did not arrive empty. They arrived with principles and rules already in
 ### Two bins, and only one of them dissolves
 
 - **Standing instruction files** — `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, Cursor/Cline/Copilot/Windsurf/Continue rules. These are re-sent to the model on every single request, which is the scarcest space there is. They get **sorted by species**, below.
-- **Project-information files** — `README`s, `docs/`, `ARCHITECTURE.md`, design notes, plan and TODO files. **Leave these exactly where they are for now, and don't offer to register them.** They are never dissolved either way: the file on disk is the truth and copying one would create a second truth that drifts. Registering them as sources is how Monet is meant to reach into them, and that mechanism exists — but its retrieval quality is being repaired right now (monet-core#135), so recommending it today would be selling a user something we know finds poorly. Say so if they ask: their docs stay readable and you still read them when the work needs them; what is missing is Monet finding *into* them by itself, and that opens once the repair lands.
+- **Project-information files** — `README`s, `docs/`, `ARCHITECTURE.md`, design notes, plan and TODO files. **Leave these alone. You read them.** They are never dissolved and never copied — the file on disk is the truth, and you already have glob, grep and read, which give you the current bytes with no index to go stale. Monet can also register a file as a source and index it, and that machinery exists, but registering buys exactly one thing over reading: finding a document nobody knew to look for. That one thing is not reliable enough today to be worth the trade (monet-core#135 — paused for redesign), so don't offer it. If the user asks, say it plainly: their docs stay exactly as they are, you read them when the work needs them, and the only thing missing is Monet surfacing one unprompted.
 
 Code is neither. Don't mine project docs for buried norms either — a line in a doc has not proven itself a rule until it actually changes what someone does, and a front-loaded mining pass is expensive and mostly wrong. Those surface later, in use.
 
@@ -231,37 +231,28 @@ The payoff is visible or it didn't happen. Once the sort is ratified, rewrite th
 
 Progress is the difference between their file and the store, so this phase is resumable and idempotent by construction. If it is interrupted, re-read both and continue. When the file changes later, the same sort runs again on just the delta — onboarding is a re-runnable sort, not a one-shot event.
 
-### Linking live files — available, not yet recommended
+### Linking live files — exists, deliberately not offered
 
-Registration exists and works mechanically: a file or a repo's Markdown tree stays where it is, fully
-editable, and Monet indexes it and keeps it in sync rather than taking a copy. That is the right
-shape and it is where this is going.
+Monet can register a file or a repo's Markdown tree as a source: the file stays where it is, fully
+editable, and Monet indexes it and keeps it in sync rather than taking a copy. The shape is right.
 
-**Hold the recommendation until monet-core#135 lands.** What a source can do today is publish; what
-it cannot yet do reliably is be *found* — a document's own exact title has scored barely above the
-noise floor against its own chunks. Onboarding a new user onto retrieval we know is weak spends the
-one moment they are deciding whether this product works.
+**Don't offer it during onboarding.** Registering trades nothing away — the file is still the
+truth — but what it buys over you simply reading the file is one thing: surfacing a document the
+user never thought to point you at. On the evidence so far that is not dependable (a document's own
+exact title has scored barely above this store's noise floor against its own chunks), and the design
+question underneath it is open, not merely unimplemented — monet-core#135 is paused for redesign
+rather than repair.
 
-If the user asks for it directly, or already has sources registered, it is theirs to have — it is
-not broken, only weak at recall, and nothing about registering now makes the repair harder. Two
-things to get right if you do:
+Onboarding is the one moment a user decides whether this product works. Spending it on the part we
+know is weakest is a bad trade, especially when the alternative — you read the file — is exact,
+current, and already available.
 
-**Scope the selector before registering anything.** `--include` is effectively mandatory: without it
-(and without `--auto-detect true`) the registration selects nothing, publishes zero files, and still
-reports healthy. A broad glob like `**/*.md` sweeps in installed worker prompts and the
-`<!-- BEGIN with-monet:stig -->` block inside `CLAUDE.md` — linking works on whole files, so keep the
-harness out with `--include`/`--exclude` rather than hoping.
-
-```
-monet source add <name> --type repo-md --allow-caller local-agent --allow-project <project id> --include <glob>
-```
-
-`--allow-caller` and `--allow-project` are both mandatory and Monet checks them against the identity
-its *own* server derives, not what you pass — `add` prints the derived `Server identity:` line, so
-reconcile with `monet source update` if yours didn't match. Registration alone pulls nothing: call
-`source_sync` with the new id, then confirm `source_status` reports `filesIndexed` > 0. Use
-`--type git-md` for a source in another repo. Run the CLI against the same store the MCP server uses
-— if Phase 3 set `MONET_STORAGE_DIR`, export the same value here.
+If the user asks for it directly, or already has sources registered, nothing here is broken and they
+lose nothing by keeping it. The one thing to get right if you do register: `--include` is effectively
+mandatory. Without it (and without `--auto-detect true`) the registration selects nothing, publishes
+zero files, and still reports healthy — and a broad glob like `**/*.md` sweeps in installed worker
+prompts and the `<!-- BEGIN with-monet:stig -->` block inside `CLAUDE.md`, since linking works on
+whole files.
 
 ### If they have nothing
 
