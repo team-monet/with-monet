@@ -173,7 +173,7 @@ The user did not arrive empty. They arrived with principles and rules already in
 ### Two bins, and only one of them dissolves
 
 - **Standing instruction files** — `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, Cursor/Cline/Copilot/Windsurf/Continue rules. These are re-sent to the model on every single request, which is the scarcest space there is. They get **sorted by species**, below.
-- **Project-information files** — `README`s, `docs/`, `ARCHITECTURE.md`, design notes, plan and TODO files. These get **registered as sources** and never dissolved: the file on disk stays the truth and Monet holds a pointer, so recall finds *into* it. Copying one would create a second truth that drifts. (Linking flow: further down.)
+- **Project-information files** — `README`s, `docs/`, `ARCHITECTURE.md`, design notes, plan and TODO files. **Leave these exactly where they are for now, and don't offer to register them.** They are never dissolved either way: the file on disk is the truth and copying one would create a second truth that drifts. Registering them as sources is how Monet is meant to reach into them, and that mechanism exists — but its retrieval quality is being repaired right now (monet-core#135), so recommending it today would be selling a user something we know finds poorly. Say so if they ask: their docs stay readable and you still read them when the work needs them; what is missing is Monet finding *into* them by itself, and that opens once the repair lands.
 
 Code is neither. Don't mine project docs for buried norms either — a line in a doc has not proven itself a rule until it actually changes what someone does, and a front-loaded mining pass is expensive and mostly wrong. Those surface later, in use.
 
@@ -231,17 +231,37 @@ The payoff is visible or it didn't happen. Once the sort is ratified, rewrite th
 
 Progress is the difference between their file and the store, so this phase is resumable and idempotent by construction. If it is interrupted, re-read both and continue. When the file changes later, the same sort runs again on just the delta — onboarding is a re-runnable sort, not a one-shot event.
 
-### Linking live files
+### Linking live files — available, not yet recommended
 
-For a source that keeps changing — an `AGENTS.md` a teammate edits, a docs tree — register it instead of capturing it. The file stays where it is, fully editable; Monet indexes it and keeps it in sync.
+Registration exists and works mechanically: a file or a repo's Markdown tree stays where it is, fully
+editable, and Monet indexes it and keeps it in sync rather than taking a copy. That is the right
+shape and it is where this is going.
 
-**Scope the selector before registering anything.** `--include` is effectively mandatory: without it (and without `--auto-detect true`) the registration selects nothing, publishes zero files, and still reports healthy. A broad glob like `**/*.md` sweeps in installed worker prompts and the `<!-- BEGIN with-monet:stig -->` block inside `CLAUDE.md` — linking works on whole files, so keep the harness out with `--include`/`--exclude` rather than hoping. Where the Stig block lives inside the very file they want linked, sort that file instead and suggest they keep their own conventions somewhere separate.
+**Hold the recommendation until monet-core#135 lands.** What a source can do today is publish; what
+it cannot yet do reliably is be *found* — a document's own exact title has scored barely above the
+noise floor against its own chunks. Onboarding a new user onto retrieval we know is weak spends the
+one moment they are deciding whether this product works.
+
+If the user asks for it directly, or already has sources registered, it is theirs to have — it is
+not broken, only weak at recall, and nothing about registering now makes the repair harder. Two
+things to get right if you do:
+
+**Scope the selector before registering anything.** `--include` is effectively mandatory: without it
+(and without `--auto-detect true`) the registration selects nothing, publishes zero files, and still
+reports healthy. A broad glob like `**/*.md` sweeps in installed worker prompts and the
+`<!-- BEGIN with-monet:stig -->` block inside `CLAUDE.md` — linking works on whole files, so keep the
+harness out with `--include`/`--exclude` rather than hoping.
 
 ```
 monet source add <name> --type repo-md --allow-caller local-agent --allow-project <project id> --include <glob>
 ```
 
-`--allow-caller` and `--allow-project` are both mandatory and Monet checks them against the identity its *own* server derives, not what you pass — `add` prints the derived `Server identity:` line, so reconcile with `monet source update` if yours didn't match. Registration alone pulls nothing: call `source_sync` with the new id, then confirm `source_status` reports `filesIndexed` > 0 and spot-check with `memory_search`. Use `--type git-md` for a source in another repo. Run the CLI against the same store the MCP server uses — if Phase 3 set `MONET_STORAGE_DIR`, export the same value here.
+`--allow-caller` and `--allow-project` are both mandatory and Monet checks them against the identity
+its *own* server derives, not what you pass — `add` prints the derived `Server identity:` line, so
+reconcile with `monet source update` if yours didn't match. Registration alone pulls nothing: call
+`source_sync` with the new id, then confirm `source_status` reports `filesIndexed` > 0. Use
+`--type git-md` for a source in another repo. Run the CLI against the same store the MCP server uses
+— if Phase 3 set `MONET_STORAGE_DIR`, export the same value here.
 
 ### If they have nothing
 
