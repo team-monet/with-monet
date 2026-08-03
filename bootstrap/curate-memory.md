@@ -14,7 +14,7 @@ those in the same pass — they are cheaper to notice here than to discover when
 
 ## When to run
 
-- At the end of a long session, after `memory_checkpoint`
+- At the end of a long session
 - On demand, when the user asks to tidy memory
 - When `memory_overview` shows signals: open `possibleDuplicates`, several stale concepts, fragmentation in `otherCircles` (many small circles), or gate exceptions and retirement candidates in the normative layer
 
