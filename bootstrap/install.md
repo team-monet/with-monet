@@ -28,7 +28,7 @@ Skip Phases 1–3 (substrate + MCP already configured), 5–6 (memory-ingest and
 You install Monet **globally for this user** (every project), not just the current repo — so the team and memory work everywhere without re-installing per project. (If the user prefers, you can scope it to just this repo instead — confirm in step 2.)
 
 1. **Identify your host and its install surfaces.** You're the agent running inside it, so you know — or its docs do — where it keeps, at user scope, (a) its **MCP server config**, (b) its **always-on lead-persona / system prompt**, and (c) its **named-subagent definitions** (if it has them). Note two capabilities that gate the rest of the install:
-   - **MCP support — required.** Monet is an MCP server and Stig's whole loop is MCP tools (`agent_context`, `memory_store`, `memory_checkpoint`). If the host can't run MCP servers, **stop** and tell the user Monet needs an MCP-capable host.
+   - **MCP support — required.** Monet is an MCP server and Stig's whole loop is MCP tools (`agent_context`, `memory_store`, `memory_declare`). If the host can't run MCP servers, **stop** and tell the user Monet needs an MCP-capable host.
    - **Real isolated subagents — enable the worker team, but aren't required to install.** Each worker runs in its *own fresh context* the lead delegates into — not an always-on "rule" that bleeds into the main context. If the host has this, you'll offer the full team (Phase 4 Tier B). If it doesn't — or the user would rather the main agent handled everything itself — Stig still installs **lead-only**: the lead and its Monet-backed memory loop work standalone, without delegation. **Feature-detect subagent support from the host's docs — don't infer it from the host's name** (host capabilities change fast).
 
    Also note whether the host loads MCP/agents only at startup (you'll tell the user to reload afterward). Anything unclear — check the host's docs or ask the user; don't guess.
@@ -77,7 +77,7 @@ Merge into the host's **user-level** MCP config **without clobbering existing se
 
 **The liveness check is the first step that needs the model.** Before running it, confirm the warm-up finished — the Phase 2 background job has exited 0 and its log ends with `Monet started`; the line above it, `semantic embeddings ready (multilingual MiniLM, 384-dim)`, is the model itself reporting in, and `Circle: <name>` confirms per-project organization. If it's still running, say so and keep going with Phase 4 rather than blocking. If it exited non-zero, read the log and fix that before touching the host config — a Monet that cannot load its model will not serve at all, so no amount of MCP wiring will make the tools appear.
 
-With the model cached, verify the tools are live **in this session**: call `agent_context` (no query — on a fresh install expect a near-empty restore, which is fine). If the call isn't available, your host only connects MCP servers at launch: tell the user to reload/restart now, then resume this playbook at Phase 4 in the fresh session — Phases 5 and 6 need Monet callable. Before that reload, hand the user the resume line to paste into the fresh session — it has none of this conversation, so the paste-line is its whole handoff. Include the source: if this install is running from a local checkout, use the absolute path to `bootstrap/install.md` in that checkout; if from a raw URL, use the URL you received it from. The handoff reads: *"Read <absolute local install.md path or raw URL, the exact source for this session> and resume the Monet install at Phase 4. First, re-run the Phase 3 liveness check — call `agent_context` to confirm Monet is live and connected (a config path issue or env var misalignment is only observable after the restart); if the call fails, debug registration before proceeding; if it succeeds, continue with Phase 4. Host: <host>, scope: <global or this repo>."* The server carries its own tool descriptions, so don't restate them here or in anything you install — that text is re-sent on every request and is the most expensive place to put guidance. What matters is the loop: `agent_context` to orient, `memory_search`/`memory_gather` for pointer cards then `memory_fetch` to read, `memory_store` to write durable understanding, `memory_declare` and `memory_ratify` for rules and principles, `stage_lookup` at a named moment, `memory_workstreams` on continuation intent, and `memory_checkpoint` to close. The `source_*` tools serve Phase 5's linking flow. Recall is store-wide and every card names its home circle, so reorganizing circles never breaks findability.
+With the model cached, verify the tools are live **in this session**: call `agent_context` (no query — on a fresh install expect a near-empty restore, which is fine). If the call isn't available, your host only connects MCP servers at launch: tell the user to reload/restart now, then resume this playbook at Phase 4 in the fresh session — Phases 5 and 6 need Monet callable. Before that reload, hand the user the resume line to paste into the fresh session — it has none of this conversation, so the paste-line is its whole handoff. Include the source: if this install is running from a local checkout, use the absolute path to `bootstrap/install.md` in that checkout; if from a raw URL, use the URL you received it from. The handoff reads: *"Read <absolute local install.md path or raw URL, the exact source for this session> and resume the Monet install at Phase 4. First, re-run the Phase 3 liveness check — call `agent_context` to confirm Monet is live and connected (a config path issue or env var misalignment is only observable after the restart); if the call fails, debug registration before proceeding; if it succeeds, continue with Phase 4. Host: <host>, scope: <global or this repo>."* The server carries its own tool descriptions, so don't restate them here or in anything you install — that text is re-sent on every request and is the most expensive place to put guidance. What matters is the loop: `agent_context` to orient, `memory_search`/`memory_gather` for pointer cards then `memory_fetch` to read, `memory_store` to write a correction or a principle candidate, `memory_declare` and `memory_ratify` for rules and principles, and `stage_lookup` at a named moment. Nothing is owed at session end — Monet's records are written by the mechanisms that make them, as they happen. The `source_*` tools serve Phase 5's linking flow. Recall is store-wide and every card names its home circle, so reorganizing circles never breaks findability.
 
 The server also provides an in-band session lifecycle with zero host configuration: on the first successful tool response, it appends a delimited block (`=== MONET SESSION CONTEXT (auto-prewarm) ===`) as an additional content item carrying active workstreams, top concepts, and a curation advisory — suppressed when the first call is `agent_context` (no double-inject), and opt-out server-side via `MONET_NO_AUTOPREWARM`; after 10 mutating calls (then every 20) it appends a checkpoint nudge, silenced by a checkpoint that saves a workstream; and the server's `instructions` field describes the memory loop so an agent without the Stig persona gets the loop on first use.
 
@@ -153,7 +153,7 @@ After the worker files are written, update the mode marker's `workers=` list (Ti
 - the Monet lifecycle (`agent_context` at start; the `memory_store` write discipline),
 - Stig's **voice rule**: a teammate rather than an assistant, in the user's register; observed fact kept separate from inference; lead with the outcome and end with the decision or next action,
 - Stig's **authorization boundary**: git and GitHub mutations (commit, push, opening or replying to a PR, merging) need the user's explicit go-ahead or a durable standing instruction; otherwise prepare the change and hand over the exact command,
-- the **tracker/Monet split**: multi-step scope belongs in whatever tracker the project already uses (issue, ticket, plan file), which holds the boundary and the done, while Monet holds the rationale and the state,
+- the **tracker/Monet split**: multi-step scope belongs in whatever tracker the project already uses (issue, ticket, plan file), which holds the boundary and the done, while the artifact holds the rationale and Monet holds the normative record — how a rule was born, when it fired, what it changed,
 - the **skeleton offer**: when the user states a rule meant to govern every session, store it and offer to declare it — written as an instruction rather than a label — and never declare without asking,
 - **no required workflow**: answer directly when that suffices, delegate when a fresh isolated context earns its cost, and stop when the user's goal is met. Do not preserve an older mandatory-delegation or fixed-verification-ceremony rule over this invariant,
 - the **model-selection policy**: match the model to what the work costs to get wrong — strongest reasoning for `developer` and `verifier`, balanced for `investigator`; fresh-context independence never requires the verifier to outrank the developer,
@@ -260,38 +260,23 @@ Say one line and move on: *"Nothing to sort — Monet will pick this up as we wo
 
 ## Phase 6 — Offer to start
 
-### Capture the one species the sort could not reach
-
-Phase 5 sorted what was already written down. There is a fourth species it could not touch, because
-it exists nowhere on disk: **what they are in the middle of.** Ask once: *"One last thing — what are
-you working on right now, or what's top of mind?"* Screen the answer before storing it — credentials,
-tokens, customer data, anything they mark transient (ask when unsure) — then `memory_checkpoint` it
-as the open thread.
-
-Frame it as what it is. The sort's payoff already happened and they watched it: their standing file
-got shorter and the rules in it now arrive at the moments they govern. This is a different claim —
-that the thing they just said out loud, which no file holds and no `git log` will show, is still
-there tomorrow. Skip silently if they'd rather not; don't push.
-
 If your host loads agent prompts only at launch (most do — per Phase 1), tell the user to reload/restart so the Stig persona takes effect — and, on a team install, the workers register — before starting. (Monet itself has been live since Phase 3; the reload is about the agent files.)
 
 Ask: *"Ready? I'll run `agent_context` to restore state and begin as Stig on this project."* On yes:
 call `agent_context` (no query) and report what comes back — **narrating only what the restore
-actually returned.** Be precise about provenance, because the two halves make different claims and
-conflating them cheapens both:
+actually returned.**
 
-- **The skeleton** is what governs you now — the principles the sort ratified, arriving on every
-  request without anyone fetching them. Name one, in their own words.
-- **The workstream** is continuity — the thing they said aloud a minute ago that lives in no file.
+**The skeleton** is the claim, and it is the only one this install makes: the principles the sort
+ratified now govern you, arriving on every request without anyone fetching them. Name one, in their
+own words.
 
-If either is missing — they skipped the ask, the sort was deferred, something didn't come back —
-narrate what *is* there and say so plainly if the store is still near-empty ("this grows as we
-work"). A real miss you can fix beats a faked memory, and this is the first moment the install pays
-off; don't let it read as a status line. With both in hand, something like: *"Four lines govern me
-now — [one of them], from your own file. And you told me you're [workstream], which isn't in any
-file and `git log` won't show."* Then continue as Stig.
+If it is missing — they skipped the ask, the sort was deferred, something didn't come back — narrate
+what *is* there and say so plainly if the store is still near-empty ("this grows as we work"). A real
+miss you can fix beats a faked memory, and this is the first moment the install pays off; don't let
+it read as a status line. Something like: *"Four lines govern me now — [one of them], from your own
+file."* Then continue as Stig.
 
-(No restart available or practical in this host? Skip the reload framing and run the same `agent_context` call and narration in-band, right now — the demonstration is about what comes back, not about proving a fresh process. Source the narration strictly from what the tool call actually returns, not from what's already in this conversation — if the workstream doesn't come back, say so instead of repeating it from memory; a real miss you can fix beats a convincing fake.)
+(No restart available or practical in this host? Skip the reload framing and run the same `agent_context` call and narration in-band, right now — the demonstration is about what comes back, not about proving a fresh process. Source the narration strictly from what the tool call actually returns, not from what's already in this conversation; a real miss you can fix beats a convincing fake.)
 
 ### Show them their memory — `monet dashboard`
 
