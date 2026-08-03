@@ -187,6 +187,30 @@ Ask of each thing in their standing file, in this order. **Is it binding?** If y
 
 Most of what is in a bloated standing file is a rule that has been paying always-on rent. Saying that out loud is usually the moment the user gets it.
 
+### Where each species actually goes
+
+The sort is only worth running if what it decides gets written somewhere that delivers. Three
+entrances, and they are not interchangeable:
+
+- **A principle** enters the always-on skeleton, and only a human puts it there. `memory_declare`
+  with `species: "principle"` — never on your own initiative, always on their explicit yes, because
+  entering the skeleton is agreeing to a permanent per-request cost.
+- **A rule** binds to the moment that triggers it. `memory_declare` with `species: "rule"` and the
+  `stage` it fires at — again user-authorized, and the only entrance that can make a rule
+  **blocking**. Reserve blocking for lines where softness is dangerous, and it needs the
+  prevented-failure reason in their words, not yours.
+- **A fact** is an ordinary `memory_store`. Bulk, low ceremony.
+
+**And the entrance the sort will need most, which is not the sort at all:** later, in real work,
+they will correct you — and that correction *is* a rule being born, at the moment its evidence
+exists. `memory_store` with `kind: "rule"` captures it on the spot: the `stage` it belongs to, the
+`instance` that just went wrong, and the `reason` naming the failure it prevents. Rules captured
+this way are **advisory**; only their declaration can make one blocking, which is the right
+asymmetry — an agent may notice a rule, but only the user may hand one teeth.
+
+Tell them this once, during the sort, because it is the part that makes Monet keep working after
+onboarding ends: the file they just dissolved was static, and this is not.
+
 ### Run it as proposal review, not an interview
 
 Their material is already written — don't interrogate them for it. Read the file, draft the sort yourself, and bring back **batched proposals carrying their evidence**: the line as they wrote it, the species you propose, and where it would live. Review intensity follows consequence: principles full text, rules grouped by the gate they'd bind to, facts in bulk, and finally the lines you think are **dead** — old rules for tools they no longer use. "You can delete most of this file" is a payoff of its own.
