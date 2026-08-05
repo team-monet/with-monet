@@ -175,6 +175,8 @@ The user did not arrive empty. They arrived with principles and rules already in
 - **Standing instruction files** — `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, Cursor/Cline/Copilot/Windsurf/Continue rules. These are re-sent to the model on every single request, which is the scarcest space there is. They get **sorted by species**, below.
 - **Project-information files** — `README`s, `docs/`, `ARCHITECTURE.md`, design notes, plan and TODO files. **Leave these alone. You read them.** They are never dissolved and never copied — the file on disk is the truth, and you already have glob, grep and read, which give you the current bytes with no index to go stale. Monet can also register a file as a source and index it, and that machinery exists, but registering buys exactly one thing over reading: finding a document nobody knew to look for. That one thing is not reliable enough today to be worth the trade (monet-core#135 — paused for redesign), so don't offer it. If the user asks, say it plainly: their docs stay exactly as they are, you read them when the work needs them, and the only thing missing is Monet surfacing one unprompted.
 
+- **A prior memory store** — a Cline `memory-bank/`, another tool's notes directory, or an existing Monet store in the `"default"` circle. Neither of the two bins above: it is not re-sent every request and it is not a document with its own reader. It is memory that already exists and has nowhere else to live, which makes it the one thing consolidation was always best at. **Detect it and offer the migration** (`consolidate-memory.md`) — a user arriving from another memory tool otherwise finishes onboarding with their actual prior memory left behind, and no reason to suspect it.
+
 Code is neither. Don't mine project docs for buried norms either — a line in a doc has not proven itself a rule until it actually changes what someone does, and a front-loaded mining pass is expensive and mostly wrong. Those surface later, in use.
 
 ### The sort: three species, derived by two questions
@@ -208,6 +210,8 @@ entrances, and they are not interchangeable:
   sorting: the user chose that scope once and should not lose it silently.
 - **A fact** is an ordinary `memory_store`. Bulk, low ceremony.
 
+**Ratify each principle before the file shrinks.** `memory_declare` places it; `memory_ratify` records the verdict and how it was reached — `entrance: "declaration"` when the user's word settled it, `entrance: "extraction"` with the four gates answered when the battery did. That distinction is the point of the whole exercise: once the always-on file is gone, the record of WHY a line governs is the only thing left that can be argued with. Declared and unratified, a principle still fires and nobody can say what admitted it.
+
 **And the entrance the sort will need most, which is not the sort at all:** later, in real work,
 they will correct you — and that correction *is* a rule being born, at the moment its evidence
 exists. `memory_store` with `kind: "rule"` captures it on the spot: the `stage` it belongs to, the
@@ -231,6 +235,8 @@ Lead with the mirror. When the sort is drafted, show them the short list first: 
 ### Then shrink the file
 
 The payoff is visible or it didn't happen. Once the sort is ratified, rewrite their standing file down to a bootstrap line plus the principles Monet now materializes into it. Show them the diff. A file that went from hundreds of lines to a handful, with nothing lost — the rules still fire, at their moments — is the whole argument for Monet in one screen.
+
+**Materialize first, then shrink.** Run `monet materialize` (or the host's equivalent) BEFORE rewriting, and confirm the `<!-- BEGIN monet:skeleton -->` block is actually in the file. On a fresh onboarding that block does not exist yet, so a file rewritten "down to a bootstrap line plus the principles" is left holding the bootstrap line and nothing else — the principles were removed from the file and never arrived in it. Check the block is present and carries the principles you just ratified; if it is empty or missing, stop and fix that before touching the rest of the file.
 
 **Shrink only what you sorted.** Two kinds of content in that file are not yours to replace, and taking either is how "nothing lost" becomes false in the same breath you say it.
 
