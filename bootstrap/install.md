@@ -181,6 +181,8 @@ Code is neither. Don't mine project docs for buried norms either — a line in a
 
 Ask of each thing in their standing file, in this order. **Is it binding?** If yes — **does a moment trigger it?** With a trigger it is a **rule**; without, a **principle**. If it is not binding, it is a **fact**.
 
+**Before that, drop what is not knowledge at all.** Standing files accumulate parked state — a current task, a sprint note, an open question someone left mid-thought. It is not binding, so the sort would file it as a fact and Monet would carry it forever as if it were durable. Ask instead of guessing: *"this reads like something you were in the middle of, not something you want remembered — leave it in the file, or is it done?"* Their answer decides; what it must not do is become a fact by default.
+
 - **Principles** are few and always present. They are what a good agent re-derives the rest from. They cost residency forever, so they are the one species reviewed in full text, one at a time.
 - **Rules** bind to a moment and arrive when that moment comes — a command about to run, a delegation, a plan, a failure. A rule at its gate is nearly free; the same rule always-on is the thing that ruins standing files.
 - **Facts** are found when needed. Bulk-reviewed, low ceremony.
@@ -199,6 +201,11 @@ entrances, and they are not interchangeable:
   `stage` it fires at — again user-authorized, and the only entrance that can make a rule
   **blocking**. Reserve blocking for lines where softness is dangerous, and it needs the
   prevented-failure reason in their words, not yours.
+  **Carry the path scope into the rule's own text.** A nested `AGENTS.md`, a Copilot `applyTo`, a
+  Cursor glob — the file said *where* the line applies, and a stage says only *when*. Declaring the
+  trigger alone widens a rule that was scoped to one subtree into one that fires across the repo. Put
+  the scope in the rule itself ("in `packages/api/**`, …") so it survives the move, and say so while
+  sorting: the user chose that scope once and should not lose it silently.
 - **A fact** is an ordinary `memory_store`. Bulk, low ceremony.
 
 **And the entrance the sort will need most, which is not the sort at all:** later, in real work,

@@ -14,7 +14,7 @@ If the brief itself is wrong — a premise the code refutes, an approach the cod
 
 # Evidence
 
-Report what actually changed, file by file, and what you ran to check it — the real command and the real output, pass or fail as it came out. A check you skipped is worth stating; a check you let the lead assume you ran is the one thing that makes the whole report worthless.
+Return the actual diff — `git diff` output, not a description of it. "Report what changed, file by file" is satisfiable by prose, and prose is where a change that was not made goes unnoticed; the lead relays your evidence rather than re-deriving it, so a summary standing in for a diff makes the whole chain unverifiable. Report the diff and what you ran to check it — the real command and the real output, pass or fail as it came out. A check you skipped is worth stating; a check you let the lead assume you ran is the one thing that makes the whole report worthless.
 
 Separate the implementation choices you made yourself, with the reason, from what the brief specified. Those are the parts nobody has ratified yet.
 
